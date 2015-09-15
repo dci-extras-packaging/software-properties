@@ -1,7 +1,7 @@
 Source: software-properties
 Section: admin
 Priority: optional
-Maintainer: Michael Vogt <michael.vogt@ubuntu.com>
+Maintainer: Julian Andres Klode <jak@debian.org>
 Build-Depends: debhelper (>= 9),
                libxml-parser-perl,
                intltool,
@@ -10,10 +10,9 @@ Build-Depends: debhelper (>= 9),
                python-setuptools,
                python3-all,
                python3-distutils-extra,
-               python3-setuptools,
-               dh-translations
+               python3-setuptools
 Standards-Version: 3.9.6
-Vcs-Bzr: http://code.launchpad.net/~ubuntu-core-dev/software-properties/main
+Vcs-Bzr: http://code.launchpad.net/~juliank/software-properties/debian
 XS-Testsuite: autopkgtest
 
 Package: python-software-properties
@@ -60,7 +59,6 @@ Depends: ${python3:Depends}, ${misc:Depends}, python3,
  gir1.2-gtk-3.0,
  python3-aptdaemon.gtk3widgets,
  software-properties-common,
- ubuntu-drivers-common (>= 1:0.2.75),
  python3-gi,
 Description: manage the repositories that you install software from (gtk)
  This software provides an abstraction of the used apt repositories.

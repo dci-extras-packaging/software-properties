@@ -51,7 +51,11 @@ import softwareproperties.distro
 from softwareproperties.SoftwareProperties import SoftwareProperties
 import softwareproperties.SoftwareProperties
 
-from UbuntuDrivers import detect
+try:
+    from UbuntuDrivers import detect
+except ImportError as e:
+    detect = None
+    logging.error("Cannot import UbuntuDrivers: " + str(e))
 
 if GLib.pyglib_version < (3, 9, 1):
     GLib.threads_init()
@@ -175,7 +179,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.init_distro()
         self.show_distro()
         # Setup and show the Additonal Drivers tab
-        self.init_drivers()
+        #DEBIAN self.init_drivers()
+        self.vbox_drivers = None #DEBIAN
 
         # Connect to switch-page before setting initial tab. Otherwise the
         # first switch goes unnoticed.

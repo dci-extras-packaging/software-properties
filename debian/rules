@@ -7,7 +7,7 @@ PY3DEFAULT := $(shell py3versions -d)
 PY3 := $(filter-out $(PY3DEFAULT),$(PY3REQUESTED)) python3
 
 %:
-	dh $@ --with python2,python3,translations
+	dh $@ --with python2,python3
 
 override_dh_auto_clean:
 	dh_auto_clean

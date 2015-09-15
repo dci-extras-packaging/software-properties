@@ -1,3 +1,13 @@
+software-properties (0.96.9debian1) unstable; urgency=medium
+
+  * Merge with Ubuntu, remaining changes:
+    - Drop driver handling
+    - Drop Ubuntu release upgrade thing
+    - Do not use dh-translations
+    - Use copyright-format 1.0 for debian/copyright
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 15 Sep 2015 16:02:03 +0200
+
 software-properties (0.96.9) wily; urgency=medium
 
   * .assert_called() is not a valid mock method.  This silently passed in
@@ -245,6 +255,13 @@ software-properties (0.92.26) saucy; urgency=low
     - CVE-2013-1061
 
  -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Wed, 18 Sep 2013 13:17:35 -0400
+
+software-properties (0.92.25debian1) unstable; urgency=low
+
+  * Merge with Ubuntu saucy.
+  * Disable Ubuntu stuff like drivers and new releases (Closes: #666869)
+
+ -- Julian Andres Klode <jak@debian.org>  Fri, 23 Aug 2013 19:16:34 +0200
 
 software-properties (0.92.25) saucy; urgency=low
 
@@ -695,6 +712,12 @@ software-properties (0.83) quantal; urgency=low
 
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 12 Jun 2012 11:57:18 +0200
 
+software-properties (0.82.7.1debian1) unstable; urgency=low
+
+  * Merge with Ubuntu 12.04 ("precise") LTS
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 16 Jun 2012 17:57:42 +0200
+
 software-properties (0.82.7.1) precise-proposed; urgency=low
 
   * manually shift the policy index to work around wrong upgrade policy being
@@ -734,6 +757,31 @@ software-properties (0.82.5) precise; urgency=low
     menu popup() call. (LP: #815236)
 
  -- Martin Pitt <martin.pitt@ubuntu.com>  Wed, 07 Mar 2012 10:14:52 +0100
+
+software-properties (0.82.4debian3) unstable; urgency=low
+
+  * Fix the GPL-3 license statement to refer to GPL-3, not LGPL-3
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 06 Mar 2012 14:32:19 +0100
+
+software-properties (0.82.4debian2) unstable; urgency=low
+
+  * Rewrite copyright file, use copyright-format 1.0
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 06 Mar 2012 13:11:09 +0100
+
+software-properties (0.82.4debian1) unstable; urgency=low
+
+  * Upload 0.8X branch from experimental to unstable
+  * Merge with Ubuntu, remaining differences:
+    - debian/control: Maintainer, VCS differences
+    - debian/rules: Do not use dh-translations
+  * The following issues are fixed:
+    - Now build against Python 2.7 (Closes: #644539)
+    - Updated for latest GObject Introspection (Closes: #639611)
+  * Change Standards-Version to 3.9.3, no further changes required
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 06 Mar 2012 11:13:07 +0100
 
 software-properties (0.82.4) precise; urgency=low
 
@@ -782,16 +830,6 @@ software-properties (0.82.2) precise; urgency=low
     (desktop-p-control-center-cleanup spec)
 
  -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 11 Jan 2012 17:19:42 +0100
-
-software-properties (0.82.1debian1) unstable; urgency=low
-
-  * Merge with Ubuntu, remaining differences:
-    - debian/control: Maintainer, VCS differences
-    - debian/rules: Do not use dh-translations
-    - softwareproperties/gtk/CdromProgress.py: Use apt.progress.base as needed
-  * Fix more uses of the removed python-apt API
-
- -- Julian Andres Klode <jak@debian.org>  Mon, 21 Nov 2011 16:04:53 +0100
 
 software-properties (0.82) precise; urgency=low
 
