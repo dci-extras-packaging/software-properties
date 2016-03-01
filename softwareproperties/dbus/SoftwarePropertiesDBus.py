@@ -105,6 +105,12 @@ class SoftwarePropertiesDBus(dbus.service.Object, SoftwareProperties):
             sender, conn, "com.ubuntu.softwareproperties.applychanges")
         self.revert()
 
+    @dbus.service.method(DBUS_INTERFACE_NAME,
+                         sender_keyword="sender", connection_keyword="conn",
+                         in_signature='', out_signature='')
+    def Reload(self, sender=None, conn=None):
+        self.reload_sourceslist()
+
     # Enabler/Disablers
     @dbus.service.method(DBUS_INTERFACE_NAME,
                          sender_keyword="sender", connection_keyword="conn",

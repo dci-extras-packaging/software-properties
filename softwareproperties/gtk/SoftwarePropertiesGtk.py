@@ -151,6 +151,9 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.backend.connect_to_signal(
             "CdromScanFailed", self.on_cdrom_scan_failed)
 
+        # Reload dbus backend, for if there are any sources changed.
+        self.backend.Reload();
+
         # Show what we have early
         self.window_main.show()
 
@@ -325,6 +328,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         # Setup the checkbuttons for the child repos / updates
         for checkbutton in self.vbox_updates.get_children():
             self.vbox_updates.remove(checkbutton)
+        for checkbutton in self.dev_box.get_children():
+            self.dev_box.remove(checkbutton)
         if len(self.distro.source_template.children) < 1:
             self.frame_children.hide()
         for template in self.distro.source_template.children:
@@ -338,7 +343,10 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             self.handlers[checkbox] = checkbox.connect("toggled",
                                                    self.on_checkbutton_child_toggled,
                                                    template)
-            self.vbox_updates.add(checkbox)
+            if "proposed" in template.name:
+                self.dev_box.add(checkbox)
+            else:
+                self.vbox_updates.add(checkbox)
             checkbox.show()
 
         # setup the server chooser
@@ -373,6 +381,12 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             checkbox.set_active(active)
             checkbox.set_inconsistent(inconsistent)
 
+        # Enable or disable the child source checkbuttons
+        for checkbox in self.dev_box.get_children():
+            (active, inconsistent) = self.get_comp_child_state(checkbox.template)
+            checkbox.set_active(active)
+            checkbox.set_inconsistent(inconsistent)
+
         # Enable or disable the component checkbuttons
         for checkbox in self.vbox_dist_comps.get_children():
             # check if the comp is enabled
@@ -384,9 +398,11 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         # and source code
         if len(self.distro.enabled_comps) < 1:
             self.vbox_updates.set_sensitive(False)
+            self.dev_box.set_sensitive(False)
             self.checkbutton_source_code.set_sensitive(False)
         else:
             self.vbox_updates.set_sensitive(True)
+            self.dev_box.set_sensitive(True)
             self.checkbutton_source_code.set_sensitive(True)
 
         # Check for source code sources
@@ -1176,7 +1192,9 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
                     if (linux_meta and
                         linux_meta not in self.driver_changes):
                         # Install the linux metapackage
-                        self.driver_changes.append(self.apt_cache[linux_meta])
+                        lmp = self.apt_cache[linux_meta]
+                        if not lmp.is_installed:
+                            self.driver_changes.append(lmp)
         except KeyError:
             pass
 
