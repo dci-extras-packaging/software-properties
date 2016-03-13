@@ -3,8 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Julian Andres Klode <jak@debian.org>
 Build-Depends: debhelper (>= 9),
-               libxml-parser-perl,
                intltool,
+               libxml-parser-perl,
                python-all (>= 2.6.6-3~),
                python-distutils-extra (>= 1.90),
                python-setuptools,
@@ -12,37 +12,60 @@ Build-Depends: debhelper (>= 9),
                python3-distutils-extra,
                python3-setuptools
 Standards-Version: 3.9.6
-Vcs-Bzr: http://code.launchpad.net/~juliank/software-properties/debian
-XS-Testsuite: autopkgtest
 
 Package: python-software-properties
 Section: python
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python, python-apt (>=
- 0.6.20ubuntu16), python-pycurl, lsb-release,
- unattended-upgrades, iso-codes
+Depends: iso-codes,
+         lsb-release,
+         python,
+         python-apt (>= 0.8.8.2),
+         python-pycurl,
+         unattended-upgrades,
+         ${misc:Depends},
+         ${python:Depends}
 Description: manage the repositories that you install software from
  This software provides an abstraction of the used apt repositories.
  It allows you to easily manage your distribution and independent software
  vendor software sources.
+ .
+ This package contains the Python2 module.
 
 Package: python3-software-properties
 Section: python
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3, python3-apt (>=
- 0.6.20ubuntu16), python3-pycurl, lsb-release, unattended-upgrades, iso-codes
+Depends: iso-codes,
+         lsb-release,
+         python3,
+         python3-apt (>= 0.8.8.2),
+         python3-pycurl,
+         unattended-upgrades,
+         ${misc:Depends},
+         ${python3:Depends}
 Description: manage the repositories that you install software from
  This software provides an abstraction of the used apt repositories.
  It allows you to easily manage your distribution and independent software
  vendor software sources.
+ .
+ This package contains the Python3 module.
 
 Package: software-properties-common
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3,
- python3-gi, gir1.2-glib-2.0, python-apt-common (>= 0.9), python3-dbus,
- python3-software-properties (= ${binary:Version}), ca-certificates
-Breaks: python-software-properties (<< 0.85), python3-software-properties (<< 0.85)
-Replaces: python-software-properties (<< 0.85), python3-software-properties (<< 0.85)
+Depends: ca-certificates,
+         gir1.2-glib-2.0,
+         gir1.2-packagekitglib-1.0 (>= 1.1.0-2),
+         python-apt-common (>= 0.9),
+         python3,
+         python3-dbus,
+         python3-gi,
+         python3-software-properties (= ${binary:Version}),
+         ${misc:Depends},
+         ${python3:Depends}
+Recomends: packagekit
+Breaks: python-software-properties (<< 0.85),
+        python3-software-properties (<< 0.85)
+Replaces: python-software-properties (<< 0.85),
+          python3-software-properties (<< 0.85)
 Description: manage the repositories that you install software from (common)
  This software provides an abstraction of the used apt repositories.
  It allows you to easily manage your distribution and independent software
@@ -53,13 +76,14 @@ Description: manage the repositories that you install software from (common)
 
 Package: software-properties-gtk
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3,
- python3-software-properties (= ${binary:Version}),
- python3-gi,
- gir1.2-gtk-3.0,
- python3-aptdaemon.gtk3widgets,
- software-properties-common,
- python3-gi,
+Depends: gir1.2-gtk-3.0,
+         python3,
+         python3-gi,
+         python3-software-properties (= ${binary:Version}),
+         software-properties-common,
+         ${misc:Depends},
+         ${python3:Depends}
+Suggests: gnome-software
 Description: manage the repositories that you install software from (gtk)
  This software provides an abstraction of the used apt repositories.
  It allows you to easily manage your distribution and independent software
@@ -70,9 +94,13 @@ Description: manage the repositories that you install software from (gtk)
 Package: software-properties-kde
 Architecture: all
 Section: kde
-Depends: ${python3:Depends}, ${misc:Depends}, python3, python3-pyqt5,
- python3-software-properties (= ${binary:Version}), qapt-batch,
- software-properties-common
+Depends: python3,
+         python3-pyqt5,
+         python3-software-properties (= ${binary:Version}),
+         software-properties-common,
+         ${misc:Depends},
+         ${python3:Depends}
+Suggests: plasma-discover
 Description: manage the repositories that you install software from (qt)
  This software provides an abstraction of the used apt repositories.
  It allows you to easily manage your distribution and independent software
