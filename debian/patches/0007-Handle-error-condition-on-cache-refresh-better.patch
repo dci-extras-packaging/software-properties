@@ -31,10 +31,10 @@ index 83b9740..a1d7c05 100644
          self._loop.quit ()
  
 diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-index 7146bcd..34d94b3 100644
+index fab34bc..df8ad45 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-@@ -1037,13 +1037,14 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1053,13 +1053,14 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              self.progress_bar.set_fraction(prog_value / 100.0)
  
      def on_driver_changes_finish(self, source, result, installs_pending):

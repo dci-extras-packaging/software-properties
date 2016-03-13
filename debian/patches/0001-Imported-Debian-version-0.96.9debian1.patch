@@ -8,7 +8,7 @@ Subject: Imported Debian version 0.96.9debian1
  2 files changed, 10 insertions(+), 3 deletions(-)
 
 diff --git a/data/gtkbuilder/main.ui b/data/gtkbuilder/main.ui
-index 88c32a8..3f1a34f 100644
+index 047d5a0..2ad536c 100644
 --- a/data/gtkbuilder/main.ui
 +++ b/data/gtkbuilder/main.ui
 @@ -701,7 +701,7 @@
@@ -28,7 +28,7 @@ index 88c32a8..3f1a34f 100644
              <child>
                <object class="GtkBox" id="vbox_drivers">
                  <property name="visible">True</property>
-@@ -1052,6 +1053,7 @@
+@@ -1115,6 +1116,7 @@
                  <property name="tab_fill">False</property>
                </packing>
              </child>
@@ -37,7 +37,7 @@ index 88c32a8..3f1a34f 100644
            <packing>
              <property name="expand">True</property>
 diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-index acda275..d2b5aaf 100644
+index fbe5b0a..33eaaca 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
 @@ -51,7 +51,11 @@ import softwareproperties.distro
@@ -53,7 +53,7 @@ index acda275..d2b5aaf 100644
  
  if GLib.pyglib_version < (3, 9, 1):
      GLib.threads_init()
-@@ -175,7 +179,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -178,7 +182,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.init_distro()
          self.show_distro()
          # Setup and show the Additonal Drivers tab

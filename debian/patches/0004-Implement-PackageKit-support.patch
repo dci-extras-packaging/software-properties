@@ -9,7 +9,7 @@ Subject: Implement PackageKit support
  3 files changed, 175 insertions(+), 76 deletions(-)
 
 diff --git a/softwareproperties/gtk/DialogCacheOutdated.py b/softwareproperties/gtk/DialogCacheOutdated.py
-index 5905ddd..83b9740 100644
+index 31e1dd7..83b9740 100644
 --- a/softwareproperties/gtk/DialogCacheOutdated.py
 +++ b/softwareproperties/gtk/DialogCacheOutdated.py
 @@ -21,17 +21,51 @@
@@ -89,11 +89,11 @@ index 5905ddd..83b9740 100644
 -        except aptdaemon.errors.NotAuthorizedError:
 -            # Silently ignore auth failures
 -            return
--        except aptdaemon.errors.TransactionFailed as error:
--            pass
--        except Exception as error:
+-        except aptdaemon.errors.TransactionFailed as _error:
+-            error = _error
+-        except Exception as _error:
 -            error = aptdaemon.errors.TransactionFailed(aptdaemon.enums.ERROR_UNKNOWN,
--                                                       str(error))
+-                                                       str(_error))
 -        dia = AptErrorDialog(error)
 -        dia.run()
 -        dia.hide()
@@ -145,7 +145,7 @@ index 5905ddd..83b9740 100644
  
          return res
 diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-index d2b5aaf..7146bcd 100644
+index 33eaaca..fab34bc 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
 @@ -27,16 +27,21 @@ from __future__ import absolute_import, print_function
@@ -181,7 +181,7 @@ index d2b5aaf..7146bcd 100644
  try:
      from UbuntuDrivers import detect
  except ImportError as e:
-@@ -162,7 +169,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -165,7 +172,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.handlers = {}
  
          self.apt_cache = {}
@@ -190,7 +190,7 @@ index d2b5aaf..7146bcd 100644
  
          # Put some life into the user interface:
          self.init_auto_update()
-@@ -1015,7 +1022,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1031,7 +1038,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                  logging.error("Authentication canceled, changes have not been saved")
  
@@ -199,7 +199,7 @@ index d2b5aaf..7146bcd 100644
          #print(progress)
          self.button_driver_revert.set_visible(False)
          self.button_driver_apply.set_visible(False)
-@@ -1025,30 +1032,29 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1041,30 +1048,29 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.progress_bar.set_visible(True)
  
          self.label_driver_action.set_label(_("Applying changes..."))
@@ -253,7 +253,7 @@ index d2b5aaf..7146bcd 100644
  
      def on_driver_changes_apply(self, button):
  
-@@ -1061,18 +1067,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1077,18 +1083,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              else:
                  installs.append(pkg.shortname)
  
@@ -298,7 +298,7 @@ index d2b5aaf..7146bcd 100644
              print("Warning: install transaction not completed successfully: {}".format(e))
  
      def on_driver_changes_revert(self, button_revert=None):
-@@ -1092,7 +1116,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1108,7 +1132,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.button_driver_apply.set_sensitive(False)
  
      def on_driver_changes_cancel(self, button_cancel):
