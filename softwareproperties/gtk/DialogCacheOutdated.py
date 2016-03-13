@@ -81,12 +81,13 @@ class DialogCacheOutdated:
             self._pdia.progressbar.set_fraction(perc / 100.0)
 
     def on_pktask_finish(self, source, result, udata=(None,)):
-        results = self._pktask.generic_finish(result)
-        error = results.get_error_code()
-        if error != None:
+        results = None
+        try:
+            results = self._pktask.generic_finish(result)
+        except Exception as e:
             dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
                 Gtk.ButtonsType.CANCEL, _("Error while refreshing cache"))
-            dialog.format_secondary_text(error.get_details())
+            dialog.format_secondary_text(str(e))
             dialog.run()
         self._loop.quit ()
 

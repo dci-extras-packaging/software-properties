@@ -1037,13 +1037,14 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             self.progress_bar.set_fraction(prog_value / 100.0)
 
     def on_driver_changes_finish(self, source, result, installs_pending):
-        results = self.pk_task.generic_finish(result)
-        error = results.get_error_code()
-        if error != None:
+        results = None
+        try:
+            results = self.pk_task.generic_finish(result)
+        except Exception as e:
             self.on_driver_changes_revert()
             dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
                 Gtk.ButtonsType.CANCEL, _("Error while applying changes"))
-            dialog.format_secondary_text(error.get_details())
+            dialog.format_secondary_text(str(e))
             dialog.run()
         if not installs_pending:
             self.progress_bar.set_visible(False)

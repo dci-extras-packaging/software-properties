@@ -703,10 +703,11 @@ class SoftwarePropertiesKDE(SoftwareProperties):
       self._pdialog.setValue(perc)
 
   def on_pktask_finish(self, source, result, udata=(None,)):
-    results = self._pktask.generic_finish(result)
-    error = results.get_error_code()
-    if error != None:
-      QMessageBox.warning(self.userinterface, _("Could not refresh cache"), error.get_details())
+    results = None
+    try:
+        results = self._pktask.generic_finish(result)
+    except Exception as e:
+      QMessageBox.warning(self.userinterface, _("Could not refresh cache"), str(e))
     self._pdialog.hide()
     kapp.quit()
 
