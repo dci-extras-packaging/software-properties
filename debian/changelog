@@ -1,3 +1,16 @@
+software-properties (0.96.9debian1+nmu1) UNRELEASED; urgency=medium
+
+  * Non-maintainer upload, with permission of juliank
+  * Implement support for PackageKit (Closes: #730807)
+  * Fix a few small quirks in debian/copyright
+  * Wrap-and-sort debian/control
+  * software-properties-drivers.desktop: Fix typo
+    (NotShownIn -> NotShowIn)
+  * Build with --parallel (Closes: #726723)
+  * Autotests: Depend on xauth (should fix CI failure)
+
+ -- Matthias Klumpp <mak@debian.org>  Sat, 12 Mar 2016 22:18:24 +0100
+
 software-properties (0.96.9debian1) unstable; urgency=medium
 
   * Merge with Ubuntu, remaining changes:
