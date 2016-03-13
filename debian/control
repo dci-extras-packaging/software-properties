@@ -5,33 +5,12 @@ Maintainer: Julian Andres Klode <jak@debian.org>
 Build-Depends: debhelper (>= 9),
                intltool,
                libxml-parser-perl,
-               python-all (>= 2.6.6-3~),
-               python-distutils-extra (>= 1.90),
-               python-setuptools,
                python3-all,
                python3-distutils-extra,
                python3-setuptools
 Standards-Version: 3.9.6
 Vcs-Git: git://anonscm.debian.org/collab-maint/software-properties.git
 Vcs-Browser: https://anonscm.debian.org/git/collab-maint/software-properties.git
-
-Package: python-software-properties
-Section: python
-Architecture: all
-Depends: iso-codes,
-         lsb-release,
-         python,
-         python-apt (>= 0.8.8.2),
-         python-pycurl,
-         unattended-upgrades,
-         ${misc:Depends},
-         ${python:Depends}
-Description: manage the repositories that you install software from
- This software provides an abstraction of the used apt repositories.
- It allows you to easily manage your distribution and independent software
- vendor software sources.
- .
- This package contains the Python2 module.
 
 Package: python3-software-properties
 Section: python
