@@ -35,6 +35,8 @@ RELEASE_MAP = {
     'icehouse': 'precise',
     'juno': 'trusty',
     'kilo': 'trusty',
+    'liberty': 'trusty',
+    'mitaka': 'trusty',
 }
 MIRROR = "http://ubuntu-cloud.archive.canonical.com/ubuntu"
 UCA = "Ubuntu Cloud Archive"

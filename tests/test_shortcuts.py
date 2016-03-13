@@ -7,7 +7,8 @@ import sys
 sys.path.insert(0, "..")
 
 from softwareproperties.SoftwareProperties import shortcut_handler
-
+from softwareproperties.ppa import HTTPError
+from mock import patch
 
 
 class ShortcutsTestcase(unittest.TestCase):
@@ -40,6 +41,13 @@ class ShortcutsTestcase(unittest.TestCase):
              'precise-updates/folsom main',
              '/etc/apt/sources.list.d/cloudarchive-folsom.list'),
             handler.expand("precise", distro="ubuntu"))
+
+    def test_shortcut_exception(self):
+        with patch('softwareproperties.ppa.get_ppa_info_from_lp',
+                   side_effect=HTTPError):
+            with patch('softwareproperties.ppa.print_exc') as mock:
+                shortcut_handler("ppa:mvo")
+        self.assertTrue(mock.called)
 
 
 if __name__ == "__main__":

@@ -57,11 +57,11 @@ class DialogCacheOutdated:
         except aptdaemon.errors.NotAuthorizedError:
             # Silently ignore auth failures
             return
-        except aptdaemon.errors.TransactionFailed as error:
-            pass
-        except Exception as error:
+        except aptdaemon.errors.TransactionFailed as _error:
+            error = _error
+        except Exception as _error:
             error = aptdaemon.errors.TransactionFailed(aptdaemon.enums.ERROR_UNKNOWN,
-                                                       str(error))
+                                                       str(_error))
         dia = AptErrorDialog(error)
         dia.run()
         dia.hide()

@@ -1,3 +1,72 @@
+software-properties (0.96.18) xenial; urgency=medium
+
+  * Create a new tab for developer options and move the proposed source to it.
+    Since those updates can create issues they shouldn't be too easy to enable
+    nor listed with the standard recommended sources.
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Tue, 01 Mar 2016 19:52:14 +0100
+
+software-properties (0.96.17) xenial; urgency=medium
+
+  * cloudarchive: Enable support for the Mitaka Ubuntu Cloud Archive on
+    14.04 (LP: #1531225).
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Tue, 05 Jan 2016 13:08:28 -0500
+
+software-properties (0.96.16) xenial; urgency=medium
+
+  * Reload sources when starting the GTK backend; since changes made by the
+    user might otherwise be mangled as the DBus backend keeps running after
+    the GUI is terminated. Patch from Sam Segers. (LP: #879943)
+
+ -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Mon, 23 Nov 2015 16:17:45 -0500
+
+software-properties (0.96.15) xenial; urgency=medium
+
+  [ Barry Warsaw ]
+  * In ppa.py, shortcut_handler(), if a ShortcutException occurs, print
+    the traceback to stderr and return None to allow other shortcut
+    handlers to run.  (LP: #1510558)
+
+ -- Brian Murray <brian@ubuntu.com>  Tue, 27 Oct 2015 11:25:08 -0700
+
+software-properties (0.96.14) xenial; urgency=medium
+
+  * If a driver package depends on dkms and the correct linux meta package is
+    already installed don't uninstall it. (LP: #1506169)
+
+ -- Brian Murray <brian@ubuntu.com>  Mon, 26 Oct 2015 10:10:32 -0700
+
+software-properties (0.96.13) wily; urgency=medium
+
+  * Properly parse a ppa which has a leading slash, something which a lot of
+    people seem use as an argument to add-apt-repository. (LP: #1426933)
+
+ -- Brian Murray <brian@ubuntu.com>  Tue, 13 Oct 2015 11:31:14 -0700
+
+software-properties (0.96.12) wily; urgency=medium
+
+  * Ensure we handle properly unexisting user/team name instead of crashing
+    (LP: #1372086)
+  * Protect us against invalid ppa format input (LP: #1494965, #1405950)
+
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 13 Oct 2015 11:52:17 +0100
+
+software-properties (0.96.11) wily; urgency=medium
+
+  * softwareproperties/gtk/DialogCacheOutdated.py :
+    - use different variable name in exception, python3 deletes the target
+      (lp: #1496293)
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Mon, 28 Sep 2015 17:38:41 +0200
+
+software-properties (0.96.10) wily; urgency=medium
+
+  * cloudarchive: Enable support for the Liberty Ubuntu Cloud Archive on
+    14.04 (LP: #1472586).
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Wed, 02 Sep 2015 12:35:10 -0400
+
 software-properties (0.96.9debian1+nmu1) unstable; urgency=medium
 
   * Non-maintainer upload, with permission of juliank

@@ -31,6 +31,7 @@ import tempfile
 
 from gettext import gettext as _
 from threading import Thread
+from traceback import print_exc
 
 from softwareproperties.shortcuts import ShortcutException
 
@@ -129,6 +130,8 @@ def _get_https_content_pycurl(lp_url):
 
 def mangle_ppa_shortcut(shortcut):
     ppa_shortcut = shortcut.split(":")[1]
+    if ppa_shortcut.startswith("/"):
+        ppa_shortcut = ppa_shortcut.lstrip("/")
     user = ppa_shortcut.split("/")[0]
     if (user[0] == "~"):
         user = user[1:]
@@ -289,7 +292,10 @@ def _get_suggested_ppa_message(user, ppa_name):
     try:
         msg = []
         try:
-            lp_user = get_info_from_lp(LAUNCHPAD_USER_API % user)
+            try:
+                lp_user = get_info_from_lp(LAUNCHPAD_USER_API % user)
+            except PPAException:
+                return _("ERROR: '{user}' user or team does not exist.").format(user=user)
             lp_ppas = get_info_from_lp(LAUNCHPAD_USER_PPAS_API % user)
             entity_name = _("team") if lp_user["is_team"] else _("user")
             if lp_ppas["total_size"] > 0:
@@ -342,7 +348,11 @@ def get_ppa_info(shortcut):
 class PPAShortcutHandler(object):
     def __init__(self, shortcut):
         super(PPAShortcutHandler, self).__init__()
-        self.shortcut = mangle_ppa_shortcut(shortcut)
+        try:
+            self.shortcut = mangle_ppa_shortcut(shortcut)
+        except:
+            raise ShortcutException(_("ERROR: '{shortcut}' is not a valid ppa format")
+                                      .format(shortcut=shortcut))
         info = get_ppa_info(self.shortcut)
 
         if "private" in info and info["private"]:
@@ -379,7 +389,11 @@ class PPAShortcutHandler(object):
 def shortcut_handler(shortcut):
     if not shortcut.startswith("ppa:"):
         return None
-    return PPAShortcutHandler(shortcut)
+    try:
+        return PPAShortcutHandler(shortcut)
+    except ShortcutException:
+        print_exc()
+        return None
 
 
 if __name__ == "__main__":

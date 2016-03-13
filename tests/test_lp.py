@@ -54,6 +54,11 @@ class LaunchpadPPATestCase(unittest.TestCase):
             "~mvo/ubuntu-rtm/compiz",
             mangle_ppa_shortcut("ppa:mvo/ubuntu-rtm/compiz"))
 
+    def test_mangle_ppa_shortcut_leading_slash(self):
+        # Test for LP: #1426933
+        self.assertEqual("~gottcode/ubuntu/gcppa",
+                         mangle_ppa_shortcut("ppa:/gottcode/gcppa"))
+
 
 class AddPPASigningKeyTestCase(unittest.TestCase):
 
