@@ -21,15 +21,49 @@
 #  USA
 
 import os
-from gi.repository import GObject, Gtk
-
-import aptdaemon.client
-import aptdaemon.enums
-from aptdaemon.gtk3widgets import AptErrorDialog, AptProgressDialog
+import gi
+gi.require_version('PackageKitGlib', '1.0')
+gi.require_version('Gdk', '3.0')
+gi.require_version('Gtk', '3.0')
+from gi.repository import GObject, Gdk, Gtk
+from gi.repository import PackageKitGlib as packagekit
+from gettext import gettext as _
 
 from softwareproperties.gtk.utils import (
     setup_ui,
 )
+
+
+class ProgressDialog(Gtk.Window):
+    """A small helper window to display progress"""
+
+    def __init__(self, parent):
+        Gtk.Window.__init__(self, title=_("Cache Refresh"))
+        self.set_transient_for(parent)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.set_border_width(16)
+        self.set_modal(True)
+        self.set_deletable(False)
+
+        self.set_default_size(300, 75)
+        geometry = Gdk.Geometry()
+        geometry.min_width = 210
+        geometry.min_height = 60
+        geometry.max_width = 800
+        geometry.max_height = 260
+        self.set_geometry_hints(None, geometry, Gdk.WindowHints.MIN_SIZE)
+        self.set_geometry_hints(None, geometry, Gdk.WindowHints.MAX_SIZE)
+
+        self.box = Gtk.Box(spacing=6, orientation=Gtk.Orientation.VERTICAL)
+        self.add(self.box)
+
+        self.label = Gtk.Label(xalign=0)
+        self.label.set_markup("<b><big>{}</big></b>".format(_("Refreshing software cache")))
+        self.box.pack_start(self.label, False, False, 0)
+
+        # create a progress bar
+        self.progressbar = Gtk.ProgressBar()
+        self.box.pack_start(self.progressbar, True, True, 0)
 
 
 class DialogCacheOutdated:
@@ -41,44 +75,44 @@ class DialogCacheOutdated:
         self.dialog = self.dialog_cache_outofdate
         self.dialog.set_transient_for(parent)
 
-    def _run_transaction(self, transaction):
-        transaction.connect('finished', self._on_transaction_done)
-        dia = AptProgressDialog(transaction) #parent=self.parent.get_window())
-        dia.run(close_on_finished=True, show_error=True,
-                reply_handler=lambda: True,
-                error_handler=self._on_error)
+    def on_pktask_progress(self, progress, ptype, udata=(None,)):
+        if ptype == packagekit.ProgressType.PERCENTAGE:
+            perc = progress.get_property('percentage')
+            self._pdia.progressbar.set_fraction(perc / 100.0)
 
-    def _on_transaction_done(self, transaction, exit_state):
-        self.loop.quit()
-
-    def _on_error(self, error):
-        try:
-            raise error
-        except aptdaemon.errors.NotAuthorizedError:
-            # Silently ignore auth failures
-            return
-        except aptdaemon.errors.TransactionFailed as error:
-            pass
-        except Exception as error:
-            error = aptdaemon.errors.TransactionFailed(aptdaemon.enums.ERROR_UNKNOWN,
-                                                       str(error))
-        dia = AptErrorDialog(error)
-        dia.run()
-        dia.hide()
+    def on_pktask_finish(self, source, result, udata=(None,)):
+        results = self._pktask.generic_finish(result)
+        error = results.get_error_code()
+        if error != None:
+            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                Gtk.ButtonsType.CANCEL, _("Error while refreshing cache"))
+            dialog.format_secondary_text(error.get_details())
+            dialog.run()
+        self._loop.quit ()
 
     def run(self):
         """run the dialog, and if reload was pressed run cache update"""
         res = self.dialog.run()
         self.dialog.hide()
         if res == Gtk.ResponseType.APPLY:
-            self.loop = GObject.MainLoop()
-
-            ac = aptdaemon.client.AptClient()
-            ac.update_cache(reply_handler=self._run_transaction,
-                            error_handler=self._on_error)
+            self._pktask = packagekit.Task()
+            self._pdia = ProgressDialog(self.parent)
+            self._loop = GObject.MainLoop()
+            self._pdia.show_all()
 
             self.parent.set_sensitive(False)
-            self.loop.run()
+            try:
+                self._pktask.refresh_cache_async (False, # force
+                                                  None,  # GCancellable
+                                                  self.on_pktask_progress,
+                                                  (None,), # user data
+                                                  self.on_pktask_finish,
+                                                  (None,));
+            except Exception as e:
+                print("Error while requesting cache refresh: {}".format(e))
+
+            self._loop.run()
+            self._pdia.hide()
             self.parent.set_sensitive(True)
 
         return res

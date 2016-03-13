@@ -27,16 +27,21 @@ from __future__ import absolute_import, print_function
 import apt
 import apt_pkg
 import dbus
+import dbus.glib
+import dbus.mainloop.glib
 from gettext import gettext as _
 import gettext
 import os
 import subprocess
-from aptdaemon import client
-from aptdaemon.errors import NotAuthorizedError, TransactionFailed
 import logging
 import threading
 import sys
 
+import gi
+gi.require_version('PackageKitGlib', '1.0')
+gi.require_version('Gdk', '3.0')
+gi.require_version('Gtk', '3.0')
+from gi.repository import PackageKitGlib as packagekit
 from gi.repository import GObject, Gdk, Gtk, Gio, GLib
 
 from .SimpleGtkbuilderApp import SimpleGtkbuilderApp
@@ -50,6 +55,8 @@ import softwareproperties
 import softwareproperties.distro
 from softwareproperties.SoftwareProperties import SoftwareProperties
 import softwareproperties.SoftwareProperties
+
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 try:
     from UbuntuDrivers import detect
@@ -162,7 +169,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.handlers = {}
 
         self.apt_cache = {}
-        self.apt_client = client.AptClient()
+        self.pk_task = packagekit.Task()
 
         # Put some life into the user interface:
         self.init_auto_update()
@@ -1015,7 +1022,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                 logging.error("Authentication canceled, changes have not been saved")
 
-    def on_driver_changes_progress(self, transaction, progress):
+    def on_driver_changes_progress(self, progress, ptype, data=None):
         #print(progress)
         self.button_driver_revert.set_visible(False)
         self.button_driver_apply.set_visible(False)
@@ -1025,30 +1032,29 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.progress_bar.set_visible(True)
 
         self.label_driver_action.set_label(_("Applying changes..."))
-        self.progress_bar.set_fraction(progress / 100.0)
+        if ptype == packagekit.ProgressType.PERCENTAGE:
+            prog_value = progress.get_property('percentage')
+            self.progress_bar.set_fraction(prog_value / 100.0)
 
-    def on_driver_changes_finish(self, transaction, exit_state):
-        self.progress_bar.set_visible(False)
-        self.clear_changes()
-        self.apt_cache = apt.Cache()
-        self.set_driver_action_status()
-        self.update_label_and_icons_from_status()
-        self.button_driver_revert.set_visible(True)
-        self.button_driver_apply.set_visible(True)
-        self.button_driver_cancel.set_visible(False)
-        self.scrolled_window_drivers.set_sensitive(True)
-
-    def on_driver_changes_error(self, transaction, error_code, error_details):
-        self.on_driver_changes_revert()
-        self.set_driver_action_status()
-        self.update_label_and_icons_from_status()
-        self.button_driver_revert.set_visible(True)
-        self.button_driver_apply.set_visible(True)
-        self.button_driver_cancel.set_visible(False)
-        self.scrolled_window_drivers.set_sensitive(True)
-
-    def on_driver_changes_cancellable_changed(self, transaction, cancellable):
-        self.button_driver_cancel.set_sensitive(cancellable)
+    def on_driver_changes_finish(self, source, result, installs_pending):
+        results = self.pk_task.generic_finish(result)
+        error = results.get_error_code()
+        if error != None:
+            self.on_driver_changes_revert()
+            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                Gtk.ButtonsType.CANCEL, _("Error while applying changes"))
+            dialog.format_secondary_text(error.get_details())
+            dialog.run()
+        if not installs_pending:
+            self.progress_bar.set_visible(False)
+            self.clear_changes()
+            self.apt_cache = apt.Cache()
+            self.set_driver_action_status()
+            self.update_label_and_icons_from_status()
+            self.button_driver_revert.set_visible(True)
+            self.button_driver_apply.set_visible(True)
+            self.button_driver_cancel.set_visible(False)
+            self.scrolled_window_drivers.set_sensitive(True)
 
     def on_driver_changes_apply(self, button):
 
@@ -1061,18 +1067,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             else:
                 installs.append(pkg.shortname)
 
+        self.cancellable = Gio.Cancellable()
         try:
-            self.transaction = self.apt_client.commit_packages(install=installs, remove=removals,
-                                                               reinstall=[], purge=[], upgrade=[], downgrade=[])
-            self.transaction.connect("progress-changed", self.on_driver_changes_progress)
-            self.transaction.connect("cancellable-changed", self.on_driver_changes_cancellable_changed)
-            self.transaction.connect("finished", self.on_driver_changes_finish)
-            self.transaction.connect("error", self.on_driver_changes_error)
-            self.transaction.run()
+            if removals:
+                installs_pending = False
+                if installs:
+                    installs_pending = True
+                self.pk_task.reset()
+                self.pk_task.remove_packages_async(removals,
+                            False,  # allow deps
+                            True,  # autoremove
+                            self.cancellable,  # cancellable
+                            self.on_driver_changes_progress,
+                            None,  # progress data
+                            self.on_driver_changes_finish,  # callback ready
+                            installs_pending  # callback data
+                 )
+            if installs:
+                self.pk_task.reset()
+                task.install_packages_async(installs,
+                        self.cancellable,  # cancellable
+                        self.on_driver_changes_progress,
+                        None,  # progress data
+                        self.on_driver_changes_finish,  # GAsyncReadyCallback
+                        False  # ready data
+                 )
+
             self.button_driver_revert.set_sensitive(False)
             self.button_driver_apply.set_sensitive(False)
             self.scrolled_window_drivers.set_sensitive(False)
-        except (NotAuthorizedError, TransactionFailed) as e:
+        except Exception as e:
             print("Warning: install transaction not completed successfully: {}".format(e))
 
     def on_driver_changes_revert(self, button_revert=None):
@@ -1092,7 +1116,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.button_driver_apply.set_sensitive(False)
 
     def on_driver_changes_cancel(self, button_cancel):
-        self.transaction.cancel()
+        self.cancellable.cancel()
         self.clear_changes()
 
     def on_driver_restart_clicked(self, button_restart):

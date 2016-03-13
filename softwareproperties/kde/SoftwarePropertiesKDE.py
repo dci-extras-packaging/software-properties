@@ -30,7 +30,10 @@ import apt_pkg
 import tempfile
 from gettext import gettext as _
 import os
-import subprocess
+
+import gi
+gi.require_version('PackageKitGlib', '1.0')
+from gi.repository import PackageKitGlib as packagekit
 
 from PyQt5 import uic
 from PyQt5.QtCore import *
@@ -694,6 +697,19 @@ class SoftwarePropertiesKDE(SoftwareProperties):
     self.apt_key.update()
     self.show_keys()
 
+  def on_pktask_progress(self, progress, ptype, udata=(None,)):
+    if ptype == packagekit.ProgressType.PERCENTAGE:
+      perc = progress.get_property('percentage')
+      self._pdialog.setValue(perc)
+
+  def on_pktask_finish(self, source, result, udata=(None,)):
+    results = self._pktask.generic_finish(result)
+    error = results.get_error_code()
+    if error != None:
+      QMessageBox.warning(self.userinterface, _("Could not refresh cache"), error.get_details())
+    self._pdialog.hide()
+    kapp.quit()
+
   def on_close_button(self):
     """Show a dialog that a reload of the channel information is required
        only if there is no parent defined"""
@@ -708,9 +724,34 @@ class SoftwarePropertiesKDE(SoftwareProperties):
         messageBox.setText(text)
         messageBox.exec_()
         if (messageBox.clickedButton() == reloadButton):
-                cmd = ["/usr/bin/qapt-batch", "--update"]
-                subprocess.call(cmd)
-    kapp.quit()
+                self._pdialog = QProgressDialog("<big>{}</big>".format(_("Refreshing software cache")),
+                                                "Cancel", 0, 100, self.userinterface)
+                self._pdialog.setWindowTitle(_("Cache Refresh"))
+                self._pdialog.setCancelButton(None)
+                self._pdialog.setAutoClose(False)
+                self._pdialog.setMinimumWidth(210)
+                self._pdialog.setMinimumHeight(60)
+
+                self._pktask = packagekit.Task()
+                self._pdialog.show()
+                self.userinterface.hide()
+                try:
+                    self._pktask.refresh_cache_async (False, # force
+                                                  None,  # GCancellable
+                                                  self.on_pktask_progress,
+                                                  (None,), # user data
+                                                  self.on_pktask_finish,
+                                                  (None,));
+                except Exception as e:
+                    print("Error while requesting cache refresh: {}".format (e))
+        else:
+            # refresh not wanted, quit immediately
+            kapp.quit()
+    else:
+        # no changes, no cache refresh needed.
+        # we can quit.
+        kapp.quit()
+
 
   def on_button_add_cdrom_clicked(self):
     '''Show a dialog that allows to add a repository located on a CDROM
