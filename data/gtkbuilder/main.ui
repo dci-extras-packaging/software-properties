@@ -701,7 +701,7 @@
                 </child>
                 <child>
                   <object class="GtkAlignment" id="alignment15">
-                    <property name="visible">False</property>
+                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
                     <child>
@@ -955,7 +955,6 @@
                 <property name="tab_fill">False</property>
               </packing>
             </child>
-            <!--
             <child>
               <object class="GtkBox" id="vbox_drivers">
                 <property name="visible">True</property>
@@ -1053,7 +1052,6 @@
                 <property name="tab_fill">False</property>
               </packing>
             </child>
-            -->
           </object>
           <packing>
             <property name="expand">True</property>

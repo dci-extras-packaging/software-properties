@@ -1,0 +1,17 @@
+From: Matthias Klumpp <mak@debian.org>
+Date: Sun, 13 Mar 2016 15:26:56 +0100
+Subject: wrap-and-sort
+
+---
+ tests/aptroot/usr/share/python-apt/templates | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/aptroot/usr/share/python-apt/templates b/tests/aptroot/usr/share/python-apt/templates
+index 4a66a57..7ed3c9b 120000
+--- a/tests/aptroot/usr/share/python-apt/templates
++++ b/tests/aptroot/usr/share/python-apt/templates
+@@ -1 +1 @@
+-/usr/share/python-apt/templates/
+\ No newline at end of file
++/usr/share/python-apt/templates
+\ No newline at end of file
