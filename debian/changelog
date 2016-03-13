@@ -1,4 +1,4 @@
-software-properties (0.96.9debian1+nmu1) UNRELEASED; urgency=medium
+software-properties (0.96.9debian1+nmu1) unstable; urgency=medium
 
   * Non-maintainer upload, with permission of juliank
   * Implement support for PackageKit (Closes: #730807)
@@ -8,6 +8,8 @@ software-properties (0.96.9debian1+nmu1) UNRELEASED; urgency=medium
     (NotShownIn -> NotShowIn)
   * Build with --parallel (Closes: #726723)
   * Autotests: Depend on xauth (should fix CI failure)
+  * Add Vcs-* entries for the new Git repository
+  * Stop building the Python2 module
 
  -- Matthias Klumpp <mak@debian.org>  Sat, 12 Mar 2016 22:18:24 +0100
 
