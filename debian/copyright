@@ -7,8 +7,10 @@ Copyright: © 2004-2012 Canonical Ltd.
            © 2009-2010 Harald Sitter <apachelogger@ubuntu.com>
            © 2006 FSF Europe
 License: GPL-2+
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License as 
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License as
  published by the Free Software Foundation; either version 2 of the
  License, or (at your option) any later version.
  .
@@ -34,13 +36,6 @@ Files: software-properties-dbus
        softwareproperties/dbus/SoftwarePropertiesDBus.py
 Copyright: © 2010 Harald Sitter <apachelogger@ubuntu.com>
 License: GPL-2+
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- any later version.
- .
- On Debian systems, the full text of the GNU General Public License version
- 2 can be found in the file `/usr/share/common-licenses/GPL-2'.
 Comment:
  A non-common version of the GPL-2+ header, omitting the "(at your option)"
  part.
@@ -73,13 +68,6 @@ Copyright: © 2006 Rosetta Contributors
            © 2005 Zygmunt Krynicki <zyga@www.suxx.pl>
            © 2005 Gnome i18n Project for Vietnamese.
 License: GPL-2+
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License as 
- published by the Free Software Foundation; either version 2 of the
- License, or (at your option) any later version.
- .
- On Debian systems, the full text of the GNU General Public License
- version 2 can be found in the file `/usr/share/common-licenses/GPL-2'.
 Comment:
  The actual copyright / licensing statements differ in details. It mostly says
  .
