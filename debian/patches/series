@@ -3,4 +3,3 @@
 0003-Fix-typo-in-software-properties-drivers.desktop-and-.patch
 0004-Implement-PackageKit-support.patch
 0006-l18n-template-rebuild.patch
-0007-Handle-error-condition-on-cache-refresh-better.patch

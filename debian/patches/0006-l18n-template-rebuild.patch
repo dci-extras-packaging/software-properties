@@ -6,11 +6,9 @@ Subject: l18n template rebuild
  po/software-properties.pot | 293 ++++++++++++++++++++++++++++-----------------
  1 file changed, 184 insertions(+), 109 deletions(-)
 
-diff --git a/po/software-properties.pot b/po/software-properties.pot
-index 8f6c572..63eafd7 100644
 --- a/po/software-properties.pot
 +++ b/po/software-properties.pot
-@@ -8,7 +8,7 @@ msgid ""
+@@ -8,7 +8,7 @@
  msgstr ""
  "Project-Id-Version: PACKAGE VERSION\n"
  "Report-Msgid-Bugs-To: Sebastian Heinlein <sebi@glatzor.de>\n"
@@ -19,7 +17,7 @@ index 8f6c572..63eafd7 100644
  "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
  "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
  "Language-Team: LANGUAGE <LL@li.org>\n"
-@@ -41,8 +41,8 @@ msgid "Drivers;Repositories;Repository;PPA;"
+@@ -41,8 +41,8 @@
  msgstr ""
  
  #: ../data/software-properties-kde.desktop.in.h:1
@@ -30,7 +28,7 @@ index 8f6c572..63eafd7 100644
  msgid "Software Sources"
  msgstr ""
  
-@@ -53,10 +53,39 @@ msgid ""
+@@ -53,10 +53,39 @@
  "'add-apt-repository multiverse'"
  msgstr ""
  
@@ -71,7 +69,7 @@ index 8f6c572..63eafd7 100644
  #: ../add-apt-repository:62
  msgid "remove repository from sources.list.d directory"
  msgstr ""
-@@ -74,57 +103,61 @@ msgstr ""
+@@ -74,57 +103,61 @@
  msgid "Assume yes to all queries"
  msgstr ""
  
@@ -145,7 +143,7 @@ index 8f6c572..63eafd7 100644
  #, c-format
  msgid "Error: '%s' invalid"
  msgstr ""
-@@ -156,71 +189,71 @@ msgid ""
+@@ -156,71 +189,71 @@
  "distribution project."
  msgstr ""
  
@@ -235,7 +233,7 @@ index 8f6c572..63eafd7 100644
  #, python-format
  msgid "%s Software"
  msgstr ""
-@@ -228,70 +261,78 @@ msgstr ""
+@@ -228,70 +261,78 @@
  #. TRANSLATORS: Label for the components in the Internet section
  #. first %s is the description of the component
  #. second %s is the code name of the comp, eg main, universe
@@ -344,7 +342,7 @@ index 8f6c572..63eafd7 100644
  msgstr ""
  
  #: ../softwareproperties/kde/CdromProgress.py:54
-@@ -314,19 +355,13 @@ msgstr ""
+@@ -314,19 +355,13 @@
  
  #. L10N: the example is of the format: deb http://ftp.debian.org sarge main
  #: ../softwareproperties/kde/DialogAdd.py:55
@@ -366,7 +364,7 @@ index 8f6c572..63eafd7 100644
  msgstr ""
  
  #: ../softwareproperties/kde/DialogEdit.py:43
-@@ -356,137 +391,137 @@ msgstr ""
+@@ -356,137 +391,137 @@
  msgid "Completed %s of %s tests"
  msgstr ""
  
@@ -541,7 +539,7 @@ index 8f6c572..63eafd7 100644
  #: ../data/gtkbuilder/main.ui.h:37
  msgid "No proprietary drivers are in use."
  msgstr ""
-@@ -516,6 +551,18 @@ msgstr ""
+@@ -516,6 +551,18 @@
  msgid "The file '%s' does not contain any valid software sources."
  msgstr ""
  
@@ -560,7 +558,7 @@ index 8f6c572..63eafd7 100644
  #. some known keys
  #: ../softwareproperties/AptAuth.py:39
  msgid "Ubuntu Archive Automatic Signing Key <ftpmaster@ubuntu.com>"
-@@ -525,6 +572,18 @@ msgstr ""
+@@ -525,6 +572,18 @@
  msgid "Ubuntu CD Image Automatic Signing Key <cdimage@ubuntu.com>"
  msgstr ""
  
@@ -579,7 +577,7 @@ index 8f6c572..63eafd7 100644
  #: ../data/gtkbuilder/dialog-edit-source.ui.h:2
  msgid "Source"
  msgstr ""
-@@ -699,6 +758,16 @@ msgstr ""
+@@ -699,6 +758,16 @@
  msgid " "
  msgstr ""
  
@@ -596,7 +594,7 @@ index 8f6c572..63eafd7 100644
  #: ../data/gtkbuilder/dialog-cache-outofdate.ui.h:7
  msgid "_Reload"
  msgstr ""
-@@ -731,6 +800,12 @@ msgid ""
+@@ -731,6 +800,12 @@
  "location."
  msgstr ""
  

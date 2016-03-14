@@ -1,6 +1,8 @@
 From: Matthias Klumpp <mak@debian.org>
 Date: Sun, 13 Mar 2016 15:24:56 +0100
 Subject: Implement PackageKit support
+ This replaces the obsolete Aptdaemon bits and unifies the way
+ cache updates are handled using PackageKit.
 
 ---
  softwareproperties/gtk/DialogCacheOutdated.py   | 104 ++++++++++++++++--------
@@ -8,8 +10,6 @@ Subject: Implement PackageKit support
  softwareproperties/kde/SoftwarePropertiesKDE.py |  49 ++++++++++-
  3 files changed, 175 insertions(+), 76 deletions(-)
 
-diff --git a/softwareproperties/gtk/DialogCacheOutdated.py b/softwareproperties/gtk/DialogCacheOutdated.py
-index 31e1dd7..83b9740 100644
 --- a/softwareproperties/gtk/DialogCacheOutdated.py
 +++ b/softwareproperties/gtk/DialogCacheOutdated.py
 @@ -21,17 +21,51 @@
@@ -69,7 +69,7 @@ index 31e1dd7..83b9740 100644
  class DialogCacheOutdated:
      def __init__(self, parent, datadir):
          """setup up the gtk dialog"""
-@@ -41,44 +75,44 @@ class DialogCacheOutdated:
+@@ -41,44 +75,45 @@
          self.dialog = self.dialog_cache_outofdate
          self.dialog.set_transient_for(parent)
  
@@ -79,12 +79,18 @@ index 31e1dd7..83b9740 100644
 -        dia.run(close_on_finished=True, show_error=True,
 -                reply_handler=lambda: True,
 -                error_handler=self._on_error)
--
++    def on_pktask_progress(self, progress, ptype, udata=(None,)):
++        if ptype == packagekit.ProgressType.PERCENTAGE:
++            perc = progress.get_property('percentage')
++            self._pdia.progressbar.set_fraction(perc / 100.0)
+ 
 -    def _on_transaction_done(self, transaction, exit_state):
 -        self.loop.quit()
 -
 -    def _on_error(self, error):
--        try:
++    def on_pktask_finish(self, source, result, udata=(None,)):
++        results = None
+         try:
 -            raise error
 -        except aptdaemon.errors.NotAuthorizedError:
 -            # Silently ignore auth failures
@@ -97,18 +103,11 @@ index 31e1dd7..83b9740 100644
 -        dia = AptErrorDialog(error)
 -        dia.run()
 -        dia.hide()
-+    def on_pktask_progress(self, progress, ptype, udata=(None,)):
-+        if ptype == packagekit.ProgressType.PERCENTAGE:
-+            perc = progress.get_property('percentage')
-+            self._pdia.progressbar.set_fraction(perc / 100.0)
-+
-+    def on_pktask_finish(self, source, result, udata=(None,)):
-+        results = self._pktask.generic_finish(result)
-+        error = results.get_error_code()
-+        if error != None:
++            results = self._pktask.generic_finish(result)
++        except Exception as e:
 +            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
 +                Gtk.ButtonsType.CANCEL, _("Error while refreshing cache"))
-+            dialog.format_secondary_text(error.get_details())
++            dialog.format_secondary_text(str(e))
 +            dialog.run()
 +        self._loop.quit ()
  
@@ -144,11 +143,9 @@ index 31e1dd7..83b9740 100644
              self.parent.set_sensitive(True)
  
          return res
-diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-index 33eaaca..fab34bc 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-@@ -27,16 +27,21 @@ from __future__ import absolute_import, print_function
+@@ -27,16 +27,21 @@
  import apt
  import apt_pkg
  import dbus
@@ -172,7 +169,7 @@ index 33eaaca..fab34bc 100644
  from gi.repository import GObject, Gdk, Gtk, Gio, GLib
  
  from .SimpleGtkbuilderApp import SimpleGtkbuilderApp
-@@ -51,6 +56,8 @@ import softwareproperties.distro
+@@ -51,6 +56,8 @@
  from softwareproperties.SoftwareProperties import SoftwareProperties
  import softwareproperties.SoftwareProperties
  
@@ -181,7 +178,7 @@ index 33eaaca..fab34bc 100644
  try:
      from UbuntuDrivers import detect
  except ImportError as e:
-@@ -165,7 +172,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -165,7 +172,7 @@
          self.handlers = {}
  
          self.apt_cache = {}
@@ -190,7 +187,7 @@ index 33eaaca..fab34bc 100644
  
          # Put some life into the user interface:
          self.init_auto_update()
-@@ -1031,7 +1038,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1031,7 +1038,7 @@
              if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                  logging.error("Authentication canceled, changes have not been saved")
  
@@ -199,7 +196,7 @@ index 33eaaca..fab34bc 100644
          #print(progress)
          self.button_driver_revert.set_visible(False)
          self.button_driver_apply.set_visible(False)
-@@ -1041,30 +1048,29 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1041,30 +1048,30 @@
          self.progress_bar.set_visible(True)
  
          self.label_driver_action.set_label(_("Applying changes..."))
@@ -224,21 +221,21 @@ index 33eaaca..fab34bc 100644
 -        self.button_driver_apply.set_visible(True)
 -        self.button_driver_cancel.set_visible(False)
 -        self.scrolled_window_drivers.set_sensitive(True)
--
--    def on_driver_changes_cancellable_changed(self, transaction, cancellable):
--        self.button_driver_cancel.set_sensitive(cancellable)
 +        if ptype == packagekit.ProgressType.PERCENTAGE:
 +            prog_value = progress.get_property('percentage')
 +            self.progress_bar.set_fraction(prog_value / 100.0)
-+
+ 
+-    def on_driver_changes_cancellable_changed(self, transaction, cancellable):
+-        self.button_driver_cancel.set_sensitive(cancellable)
 +    def on_driver_changes_finish(self, source, result, installs_pending):
-+        results = self.pk_task.generic_finish(result)
-+        error = results.get_error_code()
-+        if error != None:
++        results = None
++        try:
++            results = self.pk_task.generic_finish(result)
++        except Exception as e:
 +            self.on_driver_changes_revert()
 +            dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
 +                Gtk.ButtonsType.CANCEL, _("Error while applying changes"))
-+            dialog.format_secondary_text(error.get_details())
++            dialog.format_secondary_text(str(e))
 +            dialog.run()
 +        if not installs_pending:
 +            self.progress_bar.set_visible(False)
@@ -253,7 +250,7 @@ index 33eaaca..fab34bc 100644
  
      def on_driver_changes_apply(self, button):
  
-@@ -1077,18 +1083,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1077,18 +1084,36 @@
              else:
                  installs.append(pkg.shortname)
  
@@ -298,7 +295,7 @@ index 33eaaca..fab34bc 100644
              print("Warning: install transaction not completed successfully: {}".format(e))
  
      def on_driver_changes_revert(self, button_revert=None):
-@@ -1108,7 +1132,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1108,7 +1133,7 @@
          self.button_driver_apply.set_sensitive(False)
  
      def on_driver_changes_cancel(self, button_cancel):
@@ -307,11 +304,9 @@ index 33eaaca..fab34bc 100644
          self.clear_changes()
  
      def on_driver_restart_clicked(self, button_restart):
-diff --git a/softwareproperties/kde/SoftwarePropertiesKDE.py b/softwareproperties/kde/SoftwarePropertiesKDE.py
-index d9ddee2..e3173be 100644
 --- a/softwareproperties/kde/SoftwarePropertiesKDE.py
 +++ b/softwareproperties/kde/SoftwarePropertiesKDE.py
-@@ -30,7 +30,10 @@ import apt_pkg
+@@ -30,7 +30,10 @@
  import tempfile
  from gettext import gettext as _
  import os
@@ -323,7 +318,7 @@ index d9ddee2..e3173be 100644
  
  from PyQt5 import uic
  from PyQt5.QtCore import *
-@@ -694,6 +697,19 @@ class SoftwarePropertiesKDE(SoftwareProperties):
+@@ -694,6 +697,20 @@
      self.apt_key.update()
      self.show_keys()
  
@@ -333,17 +328,18 @@ index d9ddee2..e3173be 100644
 +      self._pdialog.setValue(perc)
 +
 +  def on_pktask_finish(self, source, result, udata=(None,)):
-+    results = self._pktask.generic_finish(result)
-+    error = results.get_error_code()
-+    if error != None:
-+      QMessageBox.warning(self.userinterface, _("Could not refresh cache"), error.get_details())
++    results = None
++    try:
++        results = self._pktask.generic_finish(result)
++    except Exception as e:
++      QMessageBox.warning(self.userinterface, _("Could not refresh cache"), str(e))
 +    self._pdialog.hide()
 +    kapp.quit()
 +
    def on_close_button(self):
      """Show a dialog that a reload of the channel information is required
         only if there is no parent defined"""
-@@ -708,9 +724,34 @@ class SoftwarePropertiesKDE(SoftwareProperties):
+@@ -708,9 +725,34 @@
          messageBox.setText(text)
          messageBox.exec_()
          if (messageBox.clickedButton() == reloadButton):
