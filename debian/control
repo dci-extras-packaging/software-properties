@@ -42,7 +42,7 @@ Depends: ca-certificates,
          python3-software-properties (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends}
-Recomends: packagekit
+Recommends: packagekit
 Breaks: python-software-properties (<< 0.85),
         python3-software-properties (<< 0.85)
 Replaces: python-software-properties (<< 0.85),
