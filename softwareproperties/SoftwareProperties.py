@@ -147,7 +147,7 @@ class SoftwareProperties(object):
     if apt_pkg.config.find_i(softwareproperties.CONF_MAP["autoupdate"]) > 0:
         # Autodownload
         if apt_pkg.config.find_i(softwareproperties.CONF_MAP["unattended"]) == 1\
-           and apt_pkg.config.find_i(softwareproperties.CONF_MAP["autodownload"]) == 1 :
+           and os.path.exists("/usr/bin/unattended-upgrade"):
             return softwareproperties.UPDATE_INST_SEC
         elif apt_pkg.config.find_i(softwareproperties.CONF_MAP["autodownload"]) == 1 and  \
              apt_pkg.config.find_i(softwareproperties.CONF_MAP["unattended"]) == 0:
