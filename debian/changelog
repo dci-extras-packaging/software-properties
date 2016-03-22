@@ -1,3 +1,16 @@
+software-properties (0.96.20-1) unstable; urgency=medium
+
+  [ Julian Andres Klode ]
+  * Switch to 3.0 (quilt), store upstream code changes in patches
+  * Imported Upstream version 0.96.18,0.96.19,0.96.20
+  * Rebase the patches
+
+  [ Matthias Klumpp ]
+  * trivial: Typo
+  * Merge error-condition and PackageKit patch
+
+ -- Julian Andres Klode <jak@debian.org>  Tue, 22 Mar 2016 17:36:48 +0100
+
 software-properties (0.96.20) xenial; urgency=medium
 
   * Add missing pyflakes3 test dependency (got split out recently).
@@ -19,13 +32,6 @@ software-properties (0.96.19) xenial; urgency=medium
       other useful stuff
 
  -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 16 Mar 2016 10:04:11 +0100
-
-software-properties (0.96.18-1) unstable; urgency=medium
-
-  * Switch to 3.0 (quilt), store upstream code changes in patches
-  * Rebase patches against 0.9.18
-
- -- Julian Andres Klode <jak@debian.org>  Sun, 13 Mar 2016 16:48:34 +0100
 
 software-properties (0.96.18) xenial; urgency=medium
 
