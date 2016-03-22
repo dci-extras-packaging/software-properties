@@ -1,3 +1,19 @@
+software-properties (0.96.19) xenial; urgency=medium
+
+  * data/gtkbuilder/main.ui:
+    - let the new label wrap when needed
+  * softwareproperties/SoftwareProperties.py:
+    - security upload autoinstallation doesn't require autodownload to
+      be on, but check that unattended-upgrade is installed instead
+
+  [ Dustin Kirkland ]
+  * debian/control: LP: #831487
+    - make unattended-upgrades a 'recommends', rather than a depends,
+      such that it can be easily removed, without removing a bunch of
+      other useful stuff
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 16 Mar 2016 10:04:11 +0100
+
 software-properties (0.96.18) xenial; urgency=medium
 
   * Create a new tab for developer options and move the proposed source to it.
