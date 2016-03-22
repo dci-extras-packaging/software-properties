@@ -1,15 +1,17 @@
 From: Matthias Klumpp <mak@debian.org>
 Date: Sun, 13 Mar 2016 15:24:56 +0100
 Subject: Implement PackageKit support
- This replaces the obsolete Aptdaemon bits and unifies the way
- cache updates are handled using PackageKit.
 
+This replaces the obsolete Aptdaemon bits and unifies the way cache
+updates are handled using PackageKit.
 ---
- softwareproperties/gtk/DialogCacheOutdated.py   | 104 ++++++++++++++++--------
- softwareproperties/gtk/SoftwarePropertiesGtk.py |  98 +++++++++++++---------
- softwareproperties/kde/SoftwarePropertiesKDE.py |  49 ++++++++++-
- 3 files changed, 175 insertions(+), 76 deletions(-)
+ softwareproperties/gtk/DialogCacheOutdated.py   | 101 ++++++++++++++++--------
+ softwareproperties/gtk/SoftwarePropertiesGtk.py |  97 ++++++++++++++---------
+ softwareproperties/kde/SoftwarePropertiesKDE.py |  50 +++++++++++-
+ 3 files changed, 175 insertions(+), 73 deletions(-)
 
+diff --git a/softwareproperties/gtk/DialogCacheOutdated.py b/softwareproperties/gtk/DialogCacheOutdated.py
+index 31e1dd7..a1d7c05 100644
 --- a/softwareproperties/gtk/DialogCacheOutdated.py
 +++ b/softwareproperties/gtk/DialogCacheOutdated.py
 @@ -21,17 +21,51 @@
@@ -69,7 +71,7 @@ Subject: Implement PackageKit support
  class DialogCacheOutdated:
      def __init__(self, parent, datadir):
          """setup up the gtk dialog"""
-@@ -41,44 +75,45 @@
+@@ -41,44 +75,45 @@ class DialogCacheOutdated:
          self.dialog = self.dialog_cache_outofdate
          self.dialog.set_transient_for(parent)
  
@@ -79,14 +81,14 @@ Subject: Implement PackageKit support
 -        dia.run(close_on_finished=True, show_error=True,
 -                reply_handler=lambda: True,
 -                error_handler=self._on_error)
+-
+-    def _on_transaction_done(self, transaction, exit_state):
+-        self.loop.quit()
 +    def on_pktask_progress(self, progress, ptype, udata=(None,)):
 +        if ptype == packagekit.ProgressType.PERCENTAGE:
 +            perc = progress.get_property('percentage')
 +            self._pdia.progressbar.set_fraction(perc / 100.0)
  
--    def _on_transaction_done(self, transaction, exit_state):
--        self.loop.quit()
--
 -    def _on_error(self, error):
 +    def on_pktask_finish(self, source, result, udata=(None,)):
 +        results = None
@@ -143,9 +145,11 @@ Subject: Implement PackageKit support
              self.parent.set_sensitive(True)
  
          return res
+diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
+index 33eaaca..df8ad45 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-@@ -27,16 +27,21 @@
+@@ -27,16 +27,21 @@ from __future__ import absolute_import, print_function
  import apt
  import apt_pkg
  import dbus
@@ -169,7 +173,7 @@ Subject: Implement PackageKit support
  from gi.repository import GObject, Gdk, Gtk, Gio, GLib
  
  from .SimpleGtkbuilderApp import SimpleGtkbuilderApp
-@@ -51,6 +56,8 @@
+@@ -51,6 +56,8 @@ import softwareproperties.distro
  from softwareproperties.SoftwareProperties import SoftwareProperties
  import softwareproperties.SoftwareProperties
  
@@ -178,7 +182,7 @@ Subject: Implement PackageKit support
  try:
      from UbuntuDrivers import detect
  except ImportError as e:
-@@ -165,7 +172,7 @@
+@@ -165,7 +172,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.handlers = {}
  
          self.apt_cache = {}
@@ -187,7 +191,7 @@ Subject: Implement PackageKit support
  
          # Put some life into the user interface:
          self.init_auto_update()
-@@ -1031,7 +1038,7 @@
+@@ -1031,7 +1038,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                  logging.error("Authentication canceled, changes have not been saved")
  
@@ -196,7 +200,7 @@ Subject: Implement PackageKit support
          #print(progress)
          self.button_driver_revert.set_visible(False)
          self.button_driver_apply.set_visible(False)
-@@ -1041,30 +1048,30 @@
+@@ -1041,30 +1048,30 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.progress_bar.set_visible(True)
  
          self.label_driver_action.set_label(_("Applying changes..."))
@@ -250,7 +254,7 @@ Subject: Implement PackageKit support
  
      def on_driver_changes_apply(self, button):
  
-@@ -1077,18 +1084,36 @@
+@@ -1077,18 +1084,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              else:
                  installs.append(pkg.shortname)
  
@@ -295,7 +299,7 @@ Subject: Implement PackageKit support
              print("Warning: install transaction not completed successfully: {}".format(e))
  
      def on_driver_changes_revert(self, button_revert=None):
-@@ -1108,7 +1133,7 @@
+@@ -1108,7 +1133,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.button_driver_apply.set_sensitive(False)
  
      def on_driver_changes_cancel(self, button_cancel):
@@ -304,9 +308,11 @@ Subject: Implement PackageKit support
          self.clear_changes()
  
      def on_driver_restart_clicked(self, button_restart):
+diff --git a/softwareproperties/kde/SoftwarePropertiesKDE.py b/softwareproperties/kde/SoftwarePropertiesKDE.py
+index d9ddee2..f31474c 100644
 --- a/softwareproperties/kde/SoftwarePropertiesKDE.py
 +++ b/softwareproperties/kde/SoftwarePropertiesKDE.py
-@@ -30,7 +30,10 @@
+@@ -30,7 +30,10 @@ import apt_pkg
  import tempfile
  from gettext import gettext as _
  import os
@@ -318,7 +324,7 @@ Subject: Implement PackageKit support
  
  from PyQt5 import uic
  from PyQt5.QtCore import *
-@@ -694,6 +697,20 @@
+@@ -694,6 +697,20 @@ class SoftwarePropertiesKDE(SoftwareProperties):
      self.apt_key.update()
      self.show_keys()
  
@@ -339,7 +345,7 @@ Subject: Implement PackageKit support
    def on_close_button(self):
      """Show a dialog that a reload of the channel information is required
         only if there is no parent defined"""
-@@ -708,9 +725,34 @@
+@@ -708,9 +725,34 @@ class SoftwarePropertiesKDE(SoftwareProperties):
          messageBox.setText(text)
          messageBox.exec_()
          if (messageBox.clickedButton() == reloadButton):

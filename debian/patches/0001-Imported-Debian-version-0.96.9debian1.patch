@@ -1,14 +1,15 @@
 From: Julian Andres Klode <jak@debian.org>
 Date: Tue, 15 Sep 2015 16:02:03 +0200
-Subject: Imported Debian version 0.96.9debian1
+Subject: Disable driver support
 
+Disable support for drivers, as this is somewhat Ubuntu specific.
 ---
- data/gtkbuilder/main.ui                         | 4 +++-
+ data/gtkbuilder/main.ui                         | 5 ++++-
  softwareproperties/gtk/SoftwarePropertiesGtk.py | 9 +++++++--
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/data/gtkbuilder/main.ui b/data/gtkbuilder/main.ui
-index 047d5a0..2ad536c 100644
+index ed4abc1..f12a3dd 100644
 --- a/data/gtkbuilder/main.ui
 +++ b/data/gtkbuilder/main.ui
 @@ -701,7 +701,7 @@
@@ -28,7 +29,15 @@ index 047d5a0..2ad536c 100644
              <child>
                <object class="GtkBox" id="vbox_drivers">
                  <property name="visible">True</property>
-@@ -1115,6 +1116,7 @@
+@@ -1052,6 +1053,7 @@
+                 <property name="tab_fill">False</property>
+               </packing>
+             </child>
++                        -->
+             <child>
+               <object class="GtkBox" id="dev_options">
+                 <property name="visible">True</property>
+@@ -1116,6 +1118,7 @@
                  <property name="tab_fill">False</property>
                </packing>
              </child>
