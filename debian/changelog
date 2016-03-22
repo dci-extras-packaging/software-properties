@@ -1,3 +1,9 @@
+software-properties (0.96.20) xenial; urgency=medium
+
+  * Add missing pyflakes3 test dependency (got split out recently).
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Tue, 22 Mar 2016 08:45:29 +0100
+
 software-properties (0.96.19) xenial; urgency=medium
 
   * data/gtkbuilder/main.ui:
