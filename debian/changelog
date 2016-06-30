@@ -1,3 +1,9 @@
+software-properties (0.96.20.2-1) unstable; urgency=medium
+
+  * Imported Upstream version 0.96.20.2
+
+ -- Julian Andres Klode <jak@debian.org>  Thu, 30 Jun 2016 12:13:31 +0200
+
 software-properties (0.96.20.2) xenial; urgency=medium
 
   * SoftwarePropertiesGtk.py: only add mirror choices if there are mirrors
