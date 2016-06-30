@@ -1,3 +1,19 @@
+software-properties (0.96.20.2) xenial; urgency=medium
+
+  * SoftwarePropertiesGtk.py: only add mirror choices if there are mirrors
+    available from which to choose. (LP: #1101881)
+  * DialogMirror.py: guard against a traceback when get cursor returns None.
+    (LP: #1101881)
+
+ -- Brian Murray <brian@ubuntu.com>  Tue, 21 Jun 2016 12:22:08 -0700
+
+software-properties (0.96.20.1) xenial; urgency=medium
+
+  * cloudarchive: Enable support for the Newton Ubuntu Cloud Archive on
+    16.04 (LP: #1591382).
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Fri, 10 Jun 2016 17:32:35 -0400
+
 software-properties (0.96.20-1) unstable; urgency=medium
 
   [ Julian Andres Klode ]

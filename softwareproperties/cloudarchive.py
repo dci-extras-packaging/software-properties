@@ -37,6 +37,7 @@ RELEASE_MAP = {
     'kilo': 'trusty',
     'liberty': 'trusty',
     'mitaka': 'trusty',
+    'newton': 'xenial',
 }
 MIRROR = "http://ubuntu-cloud.archive.canonical.com/ubuntu"
 UCA = "Ubuntu Cloud Archive"

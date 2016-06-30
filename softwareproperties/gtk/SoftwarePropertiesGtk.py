@@ -440,9 +440,11 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         for [name, uri] in self.seen_server:
             server_store.append([name, uri, False])
         self.seen_server = seen_server_new
-        # add a separator and the option to choose another mirror from the list
-        server_store.append(["sep", None, True])
-        server_store.append([_("Other..."), None, False])
+        # only add a separator and the option to choose another mirror from
+        # the list if a mirror set exists, it may not for some architectures
+        if self.distro.source_template.mirror_set:
+            server_store.append(["sep", None, True])
+            server_store.append([_("Other..."), None, False])
 
         # make the interface respond to user interput again
         self.unblock_handlers()

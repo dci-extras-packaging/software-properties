@@ -268,6 +268,9 @@ class DialogMirror:
     self.dialog.hide()
 
     (row, column) = self.treeview.get_cursor()
+    if not row:
+        return None
+
     model = self.treeview.get_model()
     iter = model.get_iter(row)
     mirror = model.get_value(iter, COLUMN_MIRROR)
