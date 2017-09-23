@@ -1,18 +1,185 @@
-software-properties (0.96.20.2) xenial; urgency=medium
+software-properties (0.96.24.16) artful; urgency=medium
+
+  * add-apt-repository: Don't raise a Traceback when Ctrl-c is used to cancel
+    an operation. Thanks to Launchpad user Yeison Valero fo the initial patch.
+    (LP: #1704508)
+
+ -- Brian Murray <brian@ubuntu.com>  Wed, 06 Sep 2017 15:36:51 -0700
+
+software-properties (0.96.24.15) artful; urgency=medium
+
+  [Adam Collard]
+  * debian/manpages/add-apt-repository.1: Documented --update option
+    (LP: #1559482)
+
+ -- Brian Murray <brian@ubuntu.com>  Wed, 16 Aug 2017 09:25:36 -0700
+
+software-properties (0.96.24.14) artful; urgency=medium
+
+  * softwareproperties/MirrorTest.py: fix some imports so that the script can
+    be used independent of software-properties-gtk.
+
+ -- Brian Murray <brian@ubuntu.com>  Fri, 11 Aug 2017 13:22:11 -0700
+
+software-properties (0.96.24.13) zesty; urgency=medium
+
+  * software-properties-gtk: also fix the backend code to set the gnome
+    debconf frontend, without which libgtk2-perl goes unused.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 10 Apr 2017 14:25:17 -0700
+
+software-properties (0.96.24.12) zesty; urgency=medium
+
+  * software-properties-gtk: recommend libgtk2-perl, to ensure we have a
+    working debconf frontend when trying to install additional drivers.
+    LP: #1679784.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Mon, 10 Apr 2017 14:08:40 -0700
+
+software-properties (0.96.24.11) zesty; urgency=medium
+
+  [Scott Moser]
+  * debian/tests/run-tests: use gpg rather than gpg1, and show errors
+    (LP: #1670399)
+  * debian/tests/control: add gnupg to list of dependencies.
+
+  [Iain Lane]
+  * softwareproperties/shortcuts.py: Make add_key() return True. Since r988,
+    the return value of add_key() is now used to raise an exception.
+    ShortcutHandler.add_key() always succeeds, so should return True. This
+    (LP: #1670399)
+
+ -- Scott Moser <smoser@ubuntu.com>  Mon, 06 Mar 2017 12:22:03 -0500
+
+software-properties (0.96.24.10) zesty; urgency=medium
+
+  * Add knowledge of OpenStack releases Pike and Queens. (LP: #1670385)
+
+ -- Scott Moser <smoser@ubuntu.com>  Mon, 06 Mar 2017 10:08:22 -0500
+
+software-properties (0.96.24.9) zesty; urgency=medium
+
+  [ Scott Moser & Dimitri John Ledkov ]
+  * When failing to retrieve a GPG key, raise an exception such that
+    e.g. add-apt-repository can fail when it did not manage to retrieve a
+    GPG key for the shortcut repository. LP: #1532855
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Wed, 01 Mar 2017 17:38:45 +0000
+
+software-properties (0.96.24.8) zesty; urgency=medium
+
+  * cloudarchive: Enable support for the Ocata Ubuntu Cloud Archive on
+    16.04 (LP: #1645827).
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Tue, 29 Nov 2016 13:29:35 -0500
+
+software-properties (0.96.24.7) yakkety; urgency=medium
+
+  [ Dimitri John Ledkov ]
+  * Port AptAuth.py from gpg command parsing to apt-key command
+    parsing. Simplifies invocations, and allows for proper handling of
+    simplified apt-secure(8) implementation with key fragments in
+    /etc/apt/trusted.gpg.d. Make the code gnupg1 and gnupg2
+    compatible. Display long keyids in the UI (i.e. anti-evil32 keys
+    feature). Revert dependency on gnupg1.
+
+  * Fix incorrect owner_name used by launchpad PPA info api. Fix online
+    testsuite in python3 and python2. Skip bad SSL test in python2, as
+    pycurl no longer raises an exception. Drop python3-pycurl dependency,
+    not used in python3 code path nor tests any more.
+
+  [ Jeremy Bicha ]
+  * Add gi.require_version("Gtk", "3.0") to silence the warning
+
+  [ Matthias Klumpp ]
+  * Drop po/urd.po; it's a duplicate of po/ur.po
+  * Fix typo in Additional Drivers .desktop preventing the .desktop from
+    being hidden in GNOME and KDE. Also have AppStream ignore it.
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Wed, 21 Sep 2016 12:55:34 +0100
+
+software-properties (0.96.24.6) yakkety; urgency=medium
+
+  * softwareproperties/AptAuth.py: use gpg1 to manipulate
+    etc/apt/trusted.gpg as that is public gpg1 keyring, not a keybox.
+  * Add gnupg1 dependencies.
+  * Initialise ~/.gnupg otherwise dirmngr/gnupg-agent fail in the
+    autopkgtest.
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Mon, 12 Sep 2016 12:49:15 +0100
+
+software-properties (0.96.24.5) yakkety; urgency=medium
+
+  * software-properties-common: add depends on dirmngr, such that
+    add-apt-repository can fetch keys for PPAs.
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Thu, 08 Sep 2016 10:54:03 +0100
+
+software-properties (0.96.24.4) yakkety; urgency=medium
+
+  * add-apt-repository: fix compatibility with keybox gnupg 2.1. LP:
+    #1615039
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Thu, 01 Sep 2016 11:25:27 +0100
+
+software-properties (0.96.24.3) yakkety; urgency=medium
+
+  * data/gtkbuilder/main.ui: tweak the wording for the enable proposed 
+    option as suggested on lp: #1604705, extra changes are described on the bug
+    but that's more work so that's a first step in the direction
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 17 Aug 2016 11:34:26 +0200
+
+software-properties (0.96.24.2) yakkety; urgency=medium
+
+  * Do not assume that a distribution adding the PPA of another distribution
+    will want the latest series all the time. Instead check if the requested
+    codename (that is the codename of the installed distribution) is a valid
+    series in launchpad for the distribution the PPA belongs to. This
+    essentially enables derivate distributions to carry a different name but
+    use the same series name. As long as launchpad knows about the series we
+    should be fine even if the constraints are a bit lax.
+
+ -- Harald Sitter <sitter@kde.org>  Fri, 12 Aug 2016 13:52:41 +0200
+
+software-properties (0.96.24.1) yakkety; urgency=medium
+
+   * tests/test_shortcuts.py: make the tests python2 compatible.
+
+ -- Brian Murray <brian@ubuntu.com>  Wed, 13 Jul 2016 12:26:53 -0700
+
+software-properties (0.96.24) yakkety; urgency=medium
+
+  * tests/test_shortcuts.py: make the tests python2 compatible.
+
+ -- Brian Murray <brian@ubuntu.com>  Thu, 23 Jun 2016 10:33:47 -0700
+
+software-properties (0.96.23) yakkety; urgency=medium
+
+  * softwareproperties/ppa.py:
+    - fix exception output when `add-apt-repository` is called with
+      an invalid ppa (LP: #1594776)
+  * tests/test_shortcuts.py:
+    - add network check for tests that require talking to launchpad
+      or the cloud archives
+
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 22 Jun 2016 15:42:14 +0200
+
+software-properties (0.96.22) yakkety; urgency=medium
 
   * SoftwarePropertiesGtk.py: only add mirror choices if there are mirrors
     available from which to choose. (LP: #1101881)
   * DialogMirror.py: guard against a traceback when get cursor returns None.
     (LP: #1101881)
 
- -- Brian Murray <brian@ubuntu.com>  Tue, 21 Jun 2016 12:22:08 -0700
+ -- Brian Murray <brian@ubuntu.com>  Mon, 20 Jun 2016 11:08:28 -0700
 
-software-properties (0.96.20.1) xenial; urgency=medium
+software-properties (0.96.21) yakkety; urgency=medium
 
   * cloudarchive: Enable support for the Newton Ubuntu Cloud Archive on
     16.04 (LP: #1591382).
 
- -- Corey Bryant <corey.bryant@canonical.com>  Fri, 10 Jun 2016 17:32:35 -0400
+ -- Corey Bryant <corey.bryant@canonical.com>  Fri, 10 Jun 2016 17:22:43 -0400
 
 software-properties (0.96.20) xenial; urgency=medium
 

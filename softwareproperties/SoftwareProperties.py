@@ -40,6 +40,11 @@ except ImportError:
   maketrans = str.maketrans
 import stat
 
+try:
+  import queue
+except ImportError:
+  import Queue as queue
+
 from tempfile import NamedTemporaryFile
 from xml.sax.saxutils import escape
 try:
@@ -114,6 +119,9 @@ class SoftwareProperties(object):
     # FIXME: we need to store this value in a config option
     #self.custom_mirrors = ["http://adasdwww.de/ubuntu"]
     self.custom_mirrors= []
+
+    # Queue to push/pop results from threads
+    self.myqueue = queue.Queue()
 
     # apt-key stuff
     self.apt_key = AptAuth(rootdir=rootdir)
@@ -685,7 +693,15 @@ class SoftwareProperties(object):
                                               self.options.keyserver)})
     def addkey_func():
         func, kwargs = cdata
-        func(**kwargs)
+        msg = "Added key."
+        try:
+            ret = func(**kwargs)
+            if not ret:
+                msg = "Failed to add key."
+        except Exception as e:
+            ret = False
+            msg = str(e)
+        self.myqueue.put([ret, msg])
 
     worker = threading.Thread(target=addkey_func)
     worker.start()
@@ -753,6 +769,13 @@ class SoftwareProperties(object):
     if worker:
         # wait for GPG key to be downloaded
         worker.join(30)
+        if worker.isAlive():
+            # thread timed out.
+            raise shortcuts.ShortcutException("Error: retrieving gpg key timed out.")
+        result, msg = self.myqueue.get()
+        if not result:
+            raise shortcuts.ShortcutException(msg)
+
     if self.options and self.options.update:
         import apt
         cache = apt.Cache()

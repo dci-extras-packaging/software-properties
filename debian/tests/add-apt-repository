@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+rm -f /etc/apt/sources.list.d/xnox-ubuntu-nonvirt-*.list
+rm -f /etc/apt/trusted.gpg.d/xnox_ubuntu_nonvirt.gpg
+
+add-apt-repository ppa:xnox/nonvirt --yes
+
+[ -s /etc/apt/sources.list.d/xnox-ubuntu-nonvirt-*.list ]
+[ -s /etc/apt/trusted.gpg.d/xnox_ubuntu_nonvirt.gpg ]

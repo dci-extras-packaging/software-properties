@@ -4,12 +4,29 @@ import apt
 
 import unittest
 import sys
+try:
+    from urllib.request import urlopen
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    from urllib2 import HTTPError, URLError, urlopen
+try:
+    from http.client import HTTPException
+except ImportError:
+    from httplib import HTTPException
+
 sys.path.insert(0, "..")
 
 from softwareproperties.SoftwareProperties import shortcut_handler
-from softwareproperties.ppa import HTTPError
+from softwareproperties.shortcuts import ShortcutException
 from mock import patch
 
+def has_network():
+    try:
+        network = urlopen("https://launchpad.net/")
+        network
+    except (URLError, HTTPException):
+        return False
+    return True
 
 class ShortcutsTestcase(unittest.TestCase):
 
@@ -25,6 +42,7 @@ class ShortcutsTestcase(unittest.TestCase):
         handler = shortcut_handler(line)
         self.assertEqual((line, None), handler.expand())
 
+    @unittest.skipUnless(has_network(), "requires network")
     def test_shortcut_ppa(self):
         line = "ppa:mvo"
         handler = shortcut_handler(line)
@@ -33,6 +51,7 @@ class ShortcutsTestcase(unittest.TestCase):
              '/etc/apt/sources.list.d/mvo-ubuntu-ppa-trusty.list'),
             handler.expand("trusty", distro="ubuntu"))
 
+    @unittest.skipUnless(has_network(), "requires network")
     def test_shortcut_cloudarchive(self):
         line = "cloud-archive:folsom"
         handler = shortcut_handler(line)
@@ -43,11 +62,11 @@ class ShortcutsTestcase(unittest.TestCase):
             handler.expand("precise", distro="ubuntu"))
 
     def test_shortcut_exception(self):
-        with patch('softwareproperties.ppa.get_ppa_info_from_lp',
-                   side_effect=HTTPError):
-            with patch('softwareproperties.ppa.print_exc') as mock:
+        with self.assertRaises(ShortcutException):
+            with patch('softwareproperties.ppa.get_ppa_info_from_lp',
+                       side_effect=lambda *args: HTTPError("url", 404, "not found", [], None)):
                 shortcut_handler("ppa:mvo")
-        self.assertTrue(mock.called)
+
 
 
 if __name__ == "__main__":

@@ -37,6 +37,9 @@ import logging
 import threading
 import sys
 
+import gi
+gi.require_version("Gdk", "3.0")
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gdk, Gtk, Gio, GLib
 
 from .SimpleGtkbuilderApp import SimpleGtkbuilderApp
@@ -1081,6 +1084,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             self.transaction.connect("cancellable-changed", self.on_driver_changes_cancellable_changed)
             self.transaction.connect("finished", self.on_driver_changes_finish)
             self.transaction.connect("error", self.on_driver_changes_error)
+            self.transaction.set_debconf_frontend("gnome")
             self.transaction.run()
             self.button_driver_revert.set_sensitive(False)
             self.button_driver_apply.set_sensitive(False)

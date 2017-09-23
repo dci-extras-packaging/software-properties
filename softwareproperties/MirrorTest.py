@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/python3
 
 import threading
 try:
@@ -11,7 +9,8 @@ import time
 import re
 import subprocess
 import os
-import aptsources
+import aptsources.distro
+import aptsources.sourceslist
 try:
     from urllib.request import urlopen
 except ImportError:
@@ -177,13 +176,15 @@ class MirrorTest(threading.Thread):
 
 if __name__ == "__main__":
     distro = aptsources.distro.get_distro()
-    distro.get_sources(aptsources.SourcesList())
+    distro.get_sources(aptsources.sourceslist.SourcesList())
     pipe = os.popen("dpkg --print-architecture")
     arch = pipe.read().strip()
+    running = threading.Event()
+    running.set()
     test_file = "dists/%s/%s/binary-%s/Packages.gz" % \
                 (distro.source_template.name,
                  distro.source_template.components[0].name,
                  arch)
     app = MirrorTest(list(distro.source_template.mirror_set.values()),
-                     test_file)
+                     test_file, threading.Event(), running)
     app.run_full_test()
