@@ -25,6 +25,9 @@ Remove the specified repository
 .B -y, --yes
 Assume yes to all queries
 
+.B -u, --update
+After adding the repository, update the package cache with packages from this repository (avoids need to apt-get update)
+
 .B -k, --keyserver
 Use a custom keyserver URL instead of the default
 
@@ -51,6 +54,7 @@ sources.
 
 .SH SEE ALSO
 \fBsources.list\fR(5)
+\fBapt-get\fR(8)
 
 .SH COPYRIGHT
 This manual page was written by Chow Loong Jin <hyperair@gmail.com> for the

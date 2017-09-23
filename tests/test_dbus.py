@@ -3,6 +3,8 @@
 
 from __future__ import print_function
 
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 
 import atexit
@@ -310,7 +312,8 @@ class TestDBus(unittest.TestCase):
         # remove the key 
         res = self.iface.RemoveKey("D732CA59")
         self.assertTrue(res)
-        self.assertEqual(os.path.getsize(trusted_gpg), 0)
+        if os.path.exists(trusted_gpg):
+            self.assertEqual(os.path.getsize(trusted_gpg), 0)
         # add from data
         with open(testkey) as keyfile:
             data = keyfile.read()
@@ -321,7 +324,8 @@ class TestDBus(unittest.TestCase):
         # remove the key 
         res = self.iface.RemoveKey("D732CA59")
         self.assertTrue(res)
-        self.assertEqual(os.path.getsize(trusted_gpg), 0)
+        if os.path.exists(trusted_gpg):        
+            self.assertEqual(os.path.getsize(trusted_gpg), 0)
         # test nonsense
         res = self.iface.AddKeyFromData("nonsens")
         self.assertFalse(res)

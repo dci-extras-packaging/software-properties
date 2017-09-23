@@ -31,7 +31,7 @@ class ShortcutHandler(object):
         self.shortcut = shortcut
 
     def add_key(self, keyserver=None):
-        return None
+        return True
 
     def expand(self, codename=None, distro=None):
         return (self.shortcut, None)

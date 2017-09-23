@@ -137,10 +137,14 @@ sources.list
         if (sys.stdin.isatty() and
             not "FORCE_ADD_APT_REPOSITORY" in os.environ):
             if options.remove:
-                print(_("Press [ENTER] to continue or ctrl-c to cancel removing it"))
+                print(_("Press [ENTER] to continue or Ctrl-c to cancel removing it."))
             else:
-                print(_("Press [ENTER] to continue or ctrl-c to cancel adding it"))
-            sys.stdin.readline()
+                print(_("Press [ENTER] to continue or Ctrl-c to cancel adding it."))
+            try:
+                sys.stdin.readline()
+            except KeyboardInterrupt:
+                print("\n")
+                sys.exit(1)
 
 
     if options.remove:

@@ -20,6 +20,8 @@
 # USA
 
 import logging
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gio
 from softwareproperties.gtk.utils import setup_ui
 LOG=logging.getLogger(__name__)
