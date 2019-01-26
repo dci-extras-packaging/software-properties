@@ -1,18 +1,18 @@
 From: Julian Andres Klode <jak@debian.org>
 Date: Tue, 15 Sep 2015 16:02:03 +0200
-Subject: Disable driver support
+Subject: Disable support for drivers and live patch
 
 Disable support for drivers, as this is somewhat Ubuntu specific.
 ---
- data/gtkbuilder/main.ui                         | 5 ++++-
- softwareproperties/gtk/SoftwarePropertiesGtk.py | 9 +++++++--
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ data/gtkbuilder/main.ui                         |  5 ++++-
+ softwareproperties/gtk/SoftwarePropertiesGtk.py | 11 +++++++++--
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
 diff --git a/data/gtkbuilder/main.ui b/data/gtkbuilder/main.ui
-index ed4abc1..f12a3dd 100644
+index 146a9ed..3000d76 100644
 --- a/data/gtkbuilder/main.ui
 +++ b/data/gtkbuilder/main.ui
-@@ -701,7 +701,7 @@
+@@ -775,7 +775,7 @@
                  </child>
                  <child>
                    <object class="GtkAlignment" id="alignment15">
@@ -21,7 +21,7 @@ index ed4abc1..f12a3dd 100644
                      <property name="can_focus">False</property>
                      <property name="left_padding">12</property>
                      <child>
-@@ -955,6 +955,7 @@
+@@ -1026,6 +1026,7 @@
                  <property name="tab_fill">False</property>
                </packing>
              </child>
@@ -29,7 +29,7 @@ index ed4abc1..f12a3dd 100644
              <child>
                <object class="GtkBox" id="vbox_drivers">
                  <property name="visible">True</property>
-@@ -1052,6 +1053,7 @@
+@@ -1123,6 +1124,7 @@
                  <property name="tab_fill">False</property>
                </packing>
              </child>
@@ -37,7 +37,7 @@ index ed4abc1..f12a3dd 100644
              <child>
                <object class="GtkBox" id="dev_options">
                  <property name="visible">True</property>
-@@ -1116,6 +1118,7 @@
+@@ -1187,6 +1189,7 @@
                  <property name="tab_fill">False</property>
                </packing>
              </child>
@@ -46,10 +46,10 @@ index ed4abc1..f12a3dd 100644
            <packing>
              <property name="expand">True</property>
 diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-index fbe5b0a..33eaaca 100644
+index 75ff85d..71f068d 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-@@ -51,7 +51,11 @@ import softwareproperties.distro
+@@ -61,7 +61,11 @@ import softwareproperties.distro
  from softwareproperties.SoftwareProperties import SoftwareProperties
  import softwareproperties.SoftwareProperties
  
@@ -62,13 +62,29 @@ index fbe5b0a..33eaaca 100644
  
  if GLib.pyglib_version < (3, 9, 1):
      GLib.threads_init()
-@@ -178,7 +182,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
-         self.init_distro()
-         self.show_distro()
-         # Setup and show the Additonal Drivers tab
--        self.init_drivers()
-+        #DEBIAN self.init_drivers()
-+        self.vbox_drivers = None #DEBIAN
+@@ -227,7 +231,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
  
-         # Connect to switch-page before setting initial tab. Otherwise the
-         # first switch goes unnoticed.
+     def on_main_notebook_page_switched(self, notebook, page, page_num):
+         # On the additional drivers page, don't show the backend revert button.
+-        if page == self.vbox_drivers:
++        if False and page == self.vbox_drivers:
+             self.button_revert.set_visible(False)
+             if not self.detect_called:
+                 GLib.idle_add(lambda: threading.Thread(target=self.detect_drivers).start())
+@@ -1175,6 +1179,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+     def init_drivers(self):
+         """Additional Drivers tab"""
+ 
++        return
++
+         self.button_driver_revert = Gtk.Button(label=_("Re_vert"), use_underline=True)
+         self.button_driver_revert.connect("clicked", self.on_driver_changes_revert)
+         self.button_driver_apply = Gtk.Button(label=_("_Apply Changes"), use_underline=True)
+@@ -1520,6 +1526,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+             return False
+ 
+     def is_livepatch_supported(self):
++        return False
+         distro = aptsources.distro.get_distro()
+         di = distro_info.UbuntuDistroInfo()
+         return self.has_online_accounts() and \

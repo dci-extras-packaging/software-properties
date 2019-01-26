@@ -5,28 +5,27 @@ Subject: Implement PackageKit support
 This replaces the obsolete Aptdaemon bits and unifies the way cache
 updates are handled using PackageKit.
 ---
- softwareproperties/gtk/DialogCacheOutdated.py   | 101 ++++++++++++++++--------
- softwareproperties/gtk/SoftwarePropertiesGtk.py |  97 ++++++++++++++---------
- softwareproperties/kde/SoftwarePropertiesKDE.py |  50 +++++++++++-
- 3 files changed, 175 insertions(+), 73 deletions(-)
+ softwareproperties/gtk/DialogCacheOutdated.py   | 99 ++++++++++++++++---------
+ softwareproperties/gtk/SoftwarePropertiesGtk.py | 95 +++++++++++++++---------
+ softwareproperties/kde/SoftwarePropertiesKDE.py | 50 ++++++++++++-
+ 3 files changed, 170 insertions(+), 74 deletions(-)
 
 diff --git a/softwareproperties/gtk/DialogCacheOutdated.py b/softwareproperties/gtk/DialogCacheOutdated.py
-index 31e1dd7..a1d7c05 100644
+index 8f93e11..5852897 100644
 --- a/softwareproperties/gtk/DialogCacheOutdated.py
 +++ b/softwareproperties/gtk/DialogCacheOutdated.py
-@@ -21,17 +21,51 @@
- #  USA
+@@ -22,18 +22,50 @@
  
  import os
+ import gi
++gi.require_version("Gdk", "3.0")
+ gi.require_version("Gtk", "3.0")
 -from gi.repository import GObject, Gtk
 -
 -import aptdaemon.client
 -import aptdaemon.enums
 -from aptdaemon.gtk3widgets import AptErrorDialog, AptProgressDialog
-+import gi
-+gi.require_version('PackageKitGlib', '1.0')
-+gi.require_version('Gdk', '3.0')
-+gi.require_version('Gtk', '3.0')
++gi.require_version("PackageKitGlib", "1.0")
 +from gi.repository import GObject, Gdk, Gtk
 +from gi.repository import PackageKitGlib as packagekit
 +from gettext import gettext as _
@@ -71,7 +70,7 @@ index 31e1dd7..a1d7c05 100644
  class DialogCacheOutdated:
      def __init__(self, parent, datadir):
          """setup up the gtk dialog"""
-@@ -41,44 +75,45 @@ class DialogCacheOutdated:
+@@ -43,44 +75,45 @@ class DialogCacheOutdated:
          self.dialog = self.dialog_cache_outofdate
          self.dialog.set_transient_for(parent)
  
@@ -146,12 +145,12 @@ index 31e1dd7..a1d7c05 100644
  
          return res
 diff --git a/softwareproperties/gtk/SoftwarePropertiesGtk.py b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-index 33eaaca..df8ad45 100644
+index 71f068d..526883f 100644
 --- a/softwareproperties/gtk/SoftwarePropertiesGtk.py
 +++ b/softwareproperties/gtk/SoftwarePropertiesGtk.py
-@@ -27,16 +27,21 @@ from __future__ import absolute_import, print_function
- import apt
- import apt_pkg
+@@ -31,12 +31,12 @@ import aptsources.distro
+ from datetime import datetime
+ import distro_info
  import dbus
 +import dbus.glib
 +import dbus.mainloop.glib
@@ -164,16 +163,16 @@ index 33eaaca..df8ad45 100644
  import logging
  import threading
  import sys
- 
-+import gi
-+gi.require_version('PackageKitGlib', '1.0')
-+gi.require_version('Gdk', '3.0')
-+gi.require_version('Gtk', '3.0')
+@@ -44,6 +44,8 @@ import sys
+ import gi
+ gi.require_version("Gdk", "3.0")
+ gi.require_version("Gtk", "3.0")
++gi.require_version("PackageKitGlib", "1.0")
 +from gi.repository import PackageKitGlib as packagekit
  from gi.repository import GObject, Gdk, Gtk, Gio, GLib
  
  from .SimpleGtkbuilderApp import SimpleGtkbuilderApp
-@@ -51,6 +56,8 @@ import softwareproperties.distro
+@@ -61,6 +63,8 @@ import softwareproperties.distro
  from softwareproperties.SoftwareProperties import SoftwareProperties
  import softwareproperties.SoftwareProperties
  
@@ -182,7 +181,7 @@ index 33eaaca..df8ad45 100644
  try:
      from UbuntuDrivers import detect
  except ImportError as e:
-@@ -165,7 +172,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -189,7 +193,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.handlers = {}
  
          self.apt_cache = {}
@@ -191,7 +190,7 @@ index 33eaaca..df8ad45 100644
  
          # Put some life into the user interface:
          self.init_auto_update()
-@@ -1031,7 +1038,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1063,7 +1067,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                  logging.error("Authentication canceled, changes have not been saved")
  
@@ -200,7 +199,7 @@ index 33eaaca..df8ad45 100644
          #print(progress)
          self.button_driver_revert.set_visible(False)
          self.button_driver_apply.set_visible(False)
-@@ -1041,30 +1048,30 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1073,30 +1077,30 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.progress_bar.set_visible(True)
  
          self.label_driver_action.set_label(_("Applying changes..."))
@@ -254,7 +253,7 @@ index 33eaaca..df8ad45 100644
  
      def on_driver_changes_apply(self, button):
  
-@@ -1077,18 +1084,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1117,19 +1121,36 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
              else:
                  installs.append(pkg.shortname)
  
@@ -266,6 +265,7 @@ index 33eaaca..df8ad45 100644
 -            self.transaction.connect("cancellable-changed", self.on_driver_changes_cancellable_changed)
 -            self.transaction.connect("finished", self.on_driver_changes_finish)
 -            self.transaction.connect("error", self.on_driver_changes_error)
+-            self.transaction.set_debconf_frontend("gnome")
 -            self.transaction.run()
 +            if removals:
 +                installs_pending = False
@@ -299,7 +299,7 @@ index 33eaaca..df8ad45 100644
              print("Warning: install transaction not completed successfully: {}".format(e))
  
      def on_driver_changes_revert(self, button_revert=None):
-@@ -1108,7 +1133,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
+@@ -1149,7 +1170,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
          self.button_driver_apply.set_sensitive(False)
  
      def on_driver_changes_cancel(self, button_cancel):

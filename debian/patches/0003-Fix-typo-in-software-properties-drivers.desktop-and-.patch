@@ -4,21 +4,14 @@ Subject: Fix typo in software-properties-drivers.desktop and have AppStream
  ignore it
 
 ---
- data/software-properties-drivers.desktop.in | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ data/software-properties-drivers.desktop.in | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/data/software-properties-drivers.desktop.in b/data/software-properties-drivers.desktop.in
-index 97f619d..ff43b20 100644
+index 19ce725..dac3e26 100644
 --- a/data/software-properties-drivers.desktop.in
 +++ b/data/software-properties-drivers.desktop.in
-@@ -4,9 +4,10 @@ Exec=/usr/bin/software-properties-gtk --open-tab=4
- Icon=jockey
- Terminal=false
- Type=Application
--NotShownIn=GNOME;Unity;KDE;
-+NotShowIn=GNOME;Unity;KDE;
- Categories=X-XFCE;GTK;Settings;HardwareSettings
- Name=Additional Drivers
+@@ -11,3 +11,4 @@ Name=Additional Drivers
  Name[es]=Controladores adicionales
  Comment=Configure third-party and proprietary drivers
  Comment[es]=Configure controladores privativos y de terceros
