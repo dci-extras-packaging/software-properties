@@ -1,4 +1,5 @@
-#debian/tmp/usr/share/gnome/help/software-properties
+debian/tmp/usr/share/software-properties/gtkbuilder
+debian/tmp/usr/lib/python3*/*-packages/softwareproperties/gtk/*.py
 debian/tmp/usr/bin/software-properties-gtk
 debian/tmp/usr/share/mime/packages
 debian/tmp/usr/share/icons
