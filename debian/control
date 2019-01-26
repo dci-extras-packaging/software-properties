@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 9),
                intltool,
                dbus-x11 <!nocheck>,
                gir1.2-snapd-1 <!nocheck>,
+               gpg,
                lsb-release <!nocheck>,
                pyflakes3 <!nocheck>,
                python3-apt <!nocheck>,
@@ -18,9 +19,7 @@ Build-Depends: debhelper (>= 9),
                xvfb <!nocheck>,
                python3-all,
                python3-distutils-extra,
-               python3-setuptools,
-               dh-migrations,
-               dh-translations
+               python3-setuptools
 Standards-Version: 3.9.6
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/software-properties.git
 Vcs-Browser: https://anonscm.debian.org/git/collab-maint/software-properties.git
