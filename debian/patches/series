@@ -2,3 +2,4 @@
 0003-Fix-typo-in-software-properties-drivers.desktop-and-.patch
 0004-Implement-PackageKit-support.patch
 0006-l18n-template-rebuild.patch
+0005-Hack-around-test-suite-expecting-Ubuntu-and-stuff.patch
