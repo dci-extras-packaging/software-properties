@@ -1,3 +1,16 @@
+software-properties (0.96.24.32.7-1) experimental; urgency=medium
+
+  * Merge with Ubuntu 18.04 LTS; remaining changes:
+    - Do not use dh-translations (and now dh-migrations as well)
+    - Occasional indentation changes in debian/
+    - Drop aptdaemon, qapt, and ubuntu-drivers
+    - Updated debian/copyright
+    - Various patches
+  * Amongst other things, this fixes apt-key management (Closes: #867681)
+  * {Build-},Depend on gpg, gpg-agent
+
+ -- Julian Andres Klode <jak@debian.org>  Sat, 26 Jan 2019 22:52:33 +0100
+
 software-properties (0.96.24.32.7) bionic; urgency=medium
 
   * SoftwarePropertiesGtk.py: when checking a package's depends for DKMS also
