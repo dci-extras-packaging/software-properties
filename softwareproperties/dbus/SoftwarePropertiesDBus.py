@@ -61,6 +61,8 @@ class SoftwarePropertiesDBus(dbus.service.Object, SoftwareProperties):
         self.enforce_polkit = True
         logging.debug("waiting for connections")
 
+        self.init_snapd()
+
     # override set_modified_sourceslist to emit a signal
     def save_sourceslist(self):
         super(SoftwarePropertiesDBus, self).save_sourceslist()
@@ -316,6 +318,15 @@ class SoftwarePropertiesDBus(dbus.service.Object, SoftwareProperties):
         self._check_policykit_privilege(
             sender, conn, "com.ubuntu.softwareproperties.applychanges")
         return self.update_keys()
+
+    # LivePatch
+    @dbus.service.method(DBUS_INTERFACE_NAME,
+                         sender_keyword="sender", connection_keyword="conn",
+                         in_signature='bs', out_signature='bs', async_callbacks=('reply_handler', 'error_handler'))
+    def SetLivepatchEnabled(self, enabled, token, reply_handler, error_handler, sender=None, conn=None):
+        self._check_policykit_privilege(
+            sender, conn, "com.ubuntu.softwareproperties.applychanges")
+        self.set_livepatch_enabled_async(enabled, token, reply_handler)
 
     # helper from jockey
     def _check_policykit_privilege(self, sender, conn, privilege):

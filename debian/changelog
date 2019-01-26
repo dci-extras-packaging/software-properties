@@ -1,3 +1,233 @@
+software-properties (0.96.24.32.7) bionic; urgency=medium
+
+  * SoftwarePropertiesGtk.py: when checking a package's depends for DKMS also
+    pass on an AttributeError (LP: #1807373)
+
+ -- Brian Murray <brian@ubuntu.com>  Fri, 14 Dec 2018 11:13:07 -0800
+
+software-properties (0.96.24.32.6) bionic; urgency=medium
+
+  * cloudarchive: Enable support for the Stein Ubuntu Cloud Archive on
+    18.04 (LP: #1805436).
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Tue, 27 Nov 2018 09:02:22 -0500
+
+software-properties (0.96.24.32.5) bionic; urgency=medium
+
+  * SoftwarePropertiesGtk.py: Hide livepatch widgets in flavors without
+    an online account panel in gnome-control-center (LP: #1770686)
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Fri, 17 Aug 2018 09:56:07 +0000
+
+software-properties (0.96.24.32.4) bionic; urgency=medium
+
+  [ Andrea Azzarone ]
+  * Allow the user to disable livepatch if the gnome-online-account expired.
+    (lp: #1768797)
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 04 Jul 2018 15:38:17 +0200
+
+software-properties (0.96.24.32.3) bionic; urgency=medium
+
+  * cloudarchive: Enable support for the Rocky Ubuntu Cloud Archive on
+    18.04 (LP: #1769920).
+
+ -- Corey Bryant <corey.bryant@canonical.com>  Tue, 08 May 2018 10:58:48 -0400
+
+software-properties (0.96.24.32.2) bionic; urgency=medium
+
+  * SoftwarePropertiesGtk.py: uninstall the actual nvidia packages,
+    not only the meta-package (LP: #1753333).
+
+ -- Alberto Milone <alberto.milone@canonical.com>  Wed, 02 May 2018 15:58:01 +0200
+
+software-properties (0.96.24.32.1) bionic; urgency=medium
+
+  * debian/control.in:
+    - Build-Depends on dh-migrations to fix the build
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 18 Apr 2018 16:50:03 +0200
+
+software-properties (0.96.24.32) bionic; urgency=medium
+
+  * data/com.ubuntu.SoftwareProperties.gschema.xml: Add gsettings schema
+    to store the goa account id used to login in Livepatch.
+  * debian/rules: Use dh_migrations.
+  * debian/software-properties-gtk.install: install the gsetting schema.
+  * debian/software-properties-gtk.migrations: Use dh_migrations.
+  * softwareproperties/GoaAuth.py: Use gsettings instead of libsecrets
+    to store the goa account id used to login in Livepatch (LP: #1764474).
+  * softwareproperties/gtk/SoftwarePropertiesGtk.py: Update the UI
+    if the account id changes settings-side.
+  * tools/migration-scripts/01_migrate_from_keyring: Migrate the account id
+    from the keyring to gsettings.
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Tue, 17 Apr 2018 13:25:44 +0200
+
+software-properties (0.96.24.31) bionic; urgency=medium
+
+  * Build-Depend on dbus-11 and gir1.2-snapd-1 for build tests
+  * Don't ignore failing tests
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Fri, 13 Apr 2018 09:17:39 -0400
+
+software-properties (0.96.24.30) bionic; urgency=medium
+
+  * Don't use python2 in autopkgtests (LP: #1763694)
+  * Update translation template
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Fri, 13 Apr 2018 08:57:46 -0400
+
+software-properties (0.96.24.29) bionic; urgency=medium
+
+  * Drop obsolete software-properties-gnome.desktop to eliminate
+    duplication in the GNOME Software app
+  * Drop unused Python 2 python-software-properties
+  * Build with pybuild to simplify build
+  * Add several Build-Depends now that build tests are being run
+  * Ignore build test failures temporarily because of difficuly
+    getting the dbus tests to work. See bug 1763435.
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 12 Apr 2018 11:57:35 -0400
+
+software-properties (0.96.24.28) bionic; urgency=medium
+
+  [ Martin Wimpress ]
+  * Allow mate-session-manager to fulfill the gnome-session-bin Recommends
+    (LP: #1762807)
+
+  [ Jeremy Bicha ]
+  * Add Appstream metadata with compulsory_for_desktop fields to prevent
+    the accidental uninstallation of ubuntu-desktop in GNOME Software.
+    ubuntu-desktop depends on software-properties-gtk.
+  * Build-Depend on dh-python
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 10 Apr 2018 17:12:59 -0400
+
+software-properties (0.96.24.27) bionic; urgency=medium
+
+  * debian/control: Move gir1.2-goa-1.0, gir1.2-secret-1,
+    and gir1.2-snapd-1 dependencies from software-properties-common
+    to software-properties-gtk (LP: #1762082).
+  * SoftwareProperties.py: Wrap importing of gir1.2-snapd-1 in a
+    try-except block in order to avoid failures in add-apt-repository.
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Mon, 09 Apr 2018 09:19:23 +0200
+
+software-properties (0.96.24.26) bionic; urgency=medium
+
+  * debian/control:
+    - Mark gnome-keyring as recommended, which provides 
+      org.freedesktop.secrets.service.
+  * GoaAuty.py:
+    - Show warning and avoid crashing if gnome-keyring is not installed. 
+      (LP: #1760096)
+  * SoftwareProperties.py:
+    - install canonical-livepatch from stable channel (LP: #1760117)
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Tue, 03 Apr 2018 16:04:32 +0200
+
+software-properties (0.96.24.25) bionic; urgency=medium
+
+  * ppa.py:
+   - rework key retrieval, instead of using hkp & gnupg/dirmngr, use https
+     & python's built in urllib.
+   - thus, add-apt-key for PPAs observes https_proxy for key retrieval
+   - simplify gnupg operations, depend on gpg package only, and use
+     import/public key operations only.
+   - fix unicode process output bugs, when operating in a non-UTF-8
+     locale, thus enabling to import keys for my ppas in C locale.
+   - avoid creating trustdb, or requiring any gpg-agent systemd socket to
+     be activated
+   - update tests to execute key addition fully with less things stubbed
+     out with mock
+   - stop using apt-key for installing keys
+   - dirmngr is a heavy dependency and not used, and it is hard to pass
+     proxy information to it when invoking gpg from a non-standard homedir
+   - deprecate --keyserver option, making HTTPS access to
+     keyserver.ubuntu.com required
+   - LP: #1755192, LP: #1713962, LP: #1699086, LP: #1510220, LP: #1433761,
+     LP: #1395321, LP: #1312267
+
+ -- Dimitri John Ledkov <xnox@ubuntu.com>  Mon, 02 Apr 2018 10:19:34 +0100
+
+software-properties (0.96.24.24) bionic; urgency=medium
+
+  * DialogAuth.py: Implement a dialog to choose between an ubuntu sso account or
+    login into a new one. This interacts with gnome-online-accounts (LP: 1756364)
+  * DialogLivepatchError: Implement a dialog to show livepatch related errors.
+  * GoaAuth.py: Implement an utility function to store manage livepatch credentials.
+  * SoftwareProperties.py: Implement functions used by the dbus API to
+    enable/disable livepatch.
+  * SoftwarePropertiesDbus.py: Add SetLivepatchEnabled to the dbus API.
+  * SoftwarePropertiesGtk.py: Add a livepatch switch.
+  * debian/control: Depends on gir1.2-goa-1.0, gir1.2-snapd-1 and gir1.2-secret-1.
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Wed, 14 Mar 2018 20:24:31 +0100
+
+software-properties (0.96.24.23) bionic; urgency=medium
+
+  * SoftwarePropertiesGtk.py: After installing proprietary drivers provide the
+    capability to restart on Lubuntu and Xubuntu. Add recommends on the
+    packages which provide the restart tools. (LP: #1693038)
+
+ -- Brian Murray <brian@ubuntu.com>  Tue, 06 Mar 2018 08:06:33 -0800
+
+software-properties (0.96.24.22) bionic; urgency=medium
+
+  * software-properties-gtk: Depend on libgtk3-perl for debconf's GNOME
+    backend. Drop previous Recommends on libgtk2-perl. (LP: #1679784)
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 01 Mar 2018 21:34:59 -0500
+
+software-properties (0.96.24.21) bionic; urgency=medium
+
+  [ Julian Andres Klode ]
+  * add-apt-repository: Do not use absolute path to apt-get
+
+  [ Brian Murray ]
+  * software-properties-gtk: add a dependency on gnome-session-bin which
+    provides gnome-session-quit. (LP: #1693032)
+
+ -- Brian Murray <brian@ubuntu.com>  Thu, 01 Mar 2018 11:21:37 -0800
+
+software-properties (0.96.24.20) bionic; urgency=medium
+
+  * add-apt-repository: Run apt-get update after adding sources.
+
+ -- Julian Andres Klode <juliank@ubuntu.com>  Tue, 16 Jan 2018 09:58:55 +0100
+
+software-properties (0.96.24.19) bionic; urgency=medium
+
+  * tests: Clear configuration before running init() again
+
+ -- Julian Andres Klode <juliank@ubuntu.com>  Wed, 20 Dec 2017 21:55:27 +0100
+
+software-properties (0.96.24.18) bionic; urgency=medium
+
+  * tests: Re-initialize apt_pkg in setUpClass() everywhere
+
+ -- Julian Andres Klode <juliank@ubuntu.com>  Wed, 20 Dec 2017 20:39:13 +0100
+
+software-properties (0.96.24.17) artful; urgency=medium
+
+  * tests/test_dbus.py: Don't call GTK from multiple processes. We started
+    seeing software-properties tests failing with fatal X errors after GTK
+    3.22.24 was uploaded. I think what happened was:
+      - the testsuite imports GTK (via GI)
+      - this import itself initialises GTK, retrieving the value of a load of
+        X atoms
+      - it forks to start software-properties-dbus in a separate process
+      - this process then accesses another X atom after we ask it to do stuff
+      - X doesn't like that and kills us
+    The testsuite is now rewritten to not fork. We start a separate *thread*
+    to run the D-Bus service in. A benefit of this is that we're more
+    asynchronous than we were before, so some of the tests are slightly
+    refactored to not run their own main loop but instead check that the
+    signal emission they're interested in has happened. (LP: #1721828)
+
+ -- Iain Lane <iain.lane@canonical.com>  Tue, 17 Oct 2017 14:05:25 +0100
+
 software-properties (0.96.24.16) artful; urgency=medium
 
   * add-apt-repository: Don't raise a Traceback when Ctrl-c is used to cancel
@@ -605,7 +835,7 @@ software-properties (0.92.22) saucy; urgency=low
     xvfb-run and setting it again for the inferior command.
   * debian/tests/control: Depend on python-gi and python3-gi for test_dbus.
 
-  [ Jeremy Bischa ]
+  [ Jeremy Bicha ]
   * Add a scalable icon which looks better in GNOME Shell.
 
  -- Barry Warsaw <barry@ubuntu.com>  Tue, 25 Jun 2013 15:38:29 -0400

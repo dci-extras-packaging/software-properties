@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import apt_pkg
+
 import logging
 from mock import patch
 import os
@@ -14,6 +16,12 @@ from softwareproperties.SoftwareProperties import (
     SoftwareProperties)
 
 class SoftwarePropertiesTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        for k in apt_pkg.config.keys():
+            apt_pkg.config.clear(k)
+        apt_pkg.init()
 
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()

@@ -1,22 +1,6 @@
 Tests: run-tests
-Depends: dbus-x11,
-         gnupg,
-         pyflakes,
-         pyflakes3,
-         python-dbus,
-         python-distutils-extra,
-         python-gi,
-         python-mock,
-         python-pycurl,
-         python-setuptools,
-         python3-distutils-extra,
-         python3-gi,
-         python3-mock,
-         python3-pycurl,
-         python3-setuptools,
-         xvfb,
-         @
+Depends: @, xvfb, dbus-x11, python3-dbus, python3-pycurl, python3-mock, python3-distutils-extra, python3-setuptools, python3-gi, pyflakes3, gpg
 
 Tests: add-apt-repository
-Depends: gnupg, software-properties-common
-Restrictions: needs-root, breaks-testbed, allow-stderr
+Depends: software-properties-common, gpg
+Restrictions: needs-root, breaks-testbed

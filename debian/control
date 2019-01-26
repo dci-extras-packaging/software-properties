@@ -3,27 +3,34 @@ Section: admin
 Priority: optional
 Maintainer: Julian Andres Klode <jak@debian.org>
 Build-Depends: debhelper (>= 9),
-               intltool,
+               dh-python,
                libxml-parser-perl,
+               intltool,
+               dbus-x11 <!nocheck>,
+               gir1.2-snapd-1 <!nocheck>,
+               lsb-release <!nocheck>,
+               pyflakes3 <!nocheck>,
+               python3-apt <!nocheck>,
+               python3-dbus <!nocheck>,
+               python3-gi <!nocheck>,
+               python3-mock <!nocheck>,
+               xauth <!nocheck>,
+               xvfb <!nocheck>,
                python3-all,
                python3-distutils-extra,
-               python3-setuptools
+               python3-setuptools,
+               dh-migrations,
+               dh-translations
 Standards-Version: 3.9.6
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/software-properties.git
 Vcs-Browser: https://anonscm.debian.org/git/collab-maint/software-properties.git
+XS-Testsuite: autopkgtest
 
 Package: python3-software-properties
 Section: python
 Architecture: all
-Depends: dirmngr,
-         gnupg,
-         iso-codes,
-         lsb-release,
-         python3,
-         python3-apt (>= 0.8.8.2),
-         python3-pycurl,
-         ${misc:Depends},
-         ${python3:Depends}
+Depends: ${python3:Depends}, ${misc:Depends}, python3, python3-apt (>=
+ 0.6.20ubuntu16), python3-gi, lsb-release, iso-codes, gpg
 Recommends: unattended-upgrades
 Description: manage the repositories that you install software from
  This software provides an abstraction of the used apt repositories.
@@ -59,15 +66,21 @@ Description: manage the repositories that you install software from (common)
 
 Package: software-properties-gtk
 Architecture: all
-Depends: gir1.2-gtk-3.0,
-         python3,
-         python3-aptdaemon.gtk3widgets,
-         python3-gi,
-         python3-software-properties (= ${binary:Version}),
-         software-properties-common,
-         ${misc:Depends},
-         ${python3:Depends}
-Recommends: libgtk2-perl
+Depends: ${python3:Depends}, ${misc:Depends}, python3,
+ python3-software-properties (= ${binary:Version}),
+ python3-gi,
+ gir1.2-gtk-3.0,
+ gir1.2-goa-1.0 (>= 3.27.92-1ubuntu1),
+ gir1.2-secret-1,
+ gir1.2-snapd-1,
+ python3-aptdaemon.gtk3widgets,
+ python3-distro-info,
+ software-properties-common,
+ ubuntu-drivers-common (>= 1:0.2.75),
+ python3-gi,
+ libgtk3-perl
+Recommends: gnome-session-bin | xfce4-session | lubuntu-default-settings | lxqt-session | mate-session-manager,
+ gnome-keyring
 Suggests: gnome-software
 Description: manage the repositories that you install software from (gtk)
  This software provides an abstraction of the used apt repositories.

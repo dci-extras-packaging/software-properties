@@ -3,19 +3,21 @@
 
 from __future__ import print_function
 
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import GLib, Gio
 
-import atexit
+import apt_pkg
+
 import dbus
 import logging
 import glob
 import os
 import subprocess
 import sys
+import threading
 import time
 import unittest
+
+from dbus.mainloop.glib import DBusGMainLoop
 
 sys.path.insert(0, "../")
 from softwareproperties.dbus.SoftwarePropertiesDBus import (
@@ -52,52 +54,83 @@ def create_sources_list():
     return name
 
 
+def _on_name_appeared(loop):
+    def _real(connection, name, new_owner):
+        loop.quit()
+    return _real
+
+# XXX: Find a way to do this without a global (e.g. rewrite with GDBus)
+should_quit = False
+
+def _on_timeout(loop):
+    global should_quit
+    if should_quit:
+        loop.quit()
+        return GLib.SOURCE_REMOVE
+
+    return GLib.SOURCE_CONTINUE
+
+def _start_software_properties_dbus_in_session_bus_thread():
+    DBusGMainLoop(set_as_default=True)
+    loop = GLib.MainLoop()
+    threading.local().loop = loop
+
+    GLib.timeout_add_seconds(1, _on_timeout, loop)
+
+    # don't hang forever in case something goes wrong
+    GLib.timeout_add_seconds(120, lambda l: l.quit(), loop)
+
+    bus = dbus.SessionBus(private=True)
+
+    rootdir = os.path.join(os.path.dirname(__file__), "aptroot")
+    spd = SoftwarePropertiesDBus(bus, rootdir=rootdir)
+    spd.enforce_polkit = False
+    loop.run()
+
 def start_software_properties_dbus_in_session_bus():
-    clear_apt_config()
-    create_sources_list()
-    pid = os.fork()
-    if pid == 0:
-        bus = dbus.SessionBus()
-        try:
-            rootdir = os.path.join(os.path.dirname(__file__), "aptroot")
-            spd = SoftwarePropertiesDBus(bus, rootdir=rootdir)
-            spd.enforce_polkit = False
-            Gtk.main()
-        except:
-            logging.exception("dbus service failed")
-            sys.exit(1)
-    else:
-        print("starting", pid)
-        time.sleep(0.5)
-        atexit.register(stop_software_properties_dbus, pid)
-
-
-def stop_software_properties_dbus(pid):
-    print("stopping", pid)
-    # mvo: need to be (re)imported here, atexit() has the modules as "None"
-    #      otherwise
-    import os
-    import signal
-    os.kill(pid, signal.SIGTERM)
-    #os.kill(self.pid, signal.SIGKILL)
-    os.waitpid(pid, 0)
-pid = start_software_properties_dbus_in_session_bus()
+    loop = GLib.MainLoop()
+    watch_id = Gio.bus_watch_name(Gio.BusType.SESSION,
+                                  "com.ubuntu.SoftwareProperties",
+                                  Gio.BusNameWatcherFlags.NONE,
+                                  _on_name_appeared(loop),
+                                  None)
+    t = threading.Thread(target=_start_software_properties_dbus_in_session_bus_thread)
+    t.start()
+    loop.run()
+    Gio.bus_unwatch_name(watch_id)
+    return t
 
 
 class TestDBus(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        for k in apt_pkg.config.keys():
+            apt_pkg.config.clear(k)
+        apt_pkg.init()
+        clear_apt_config()
         # create sources.list file
+        create_sources_list()
+        cls.thread = start_software_properties_dbus_in_session_bus()
+
+    @classmethod
+    def tearDownClass(cls):
+        global should_quit
+        should_quit = True
+        cls.thread.join()
+
+    def setUp(self):
+        # keep track of signal emissions
+        self.sources_list_count = 0
         self.distro_release = get_distro_release()
         self.sources_list_path = create_sources_list()
         # create the client proxy
-        bus = dbus.SessionBus()
+        bus = dbus.SessionBus(private=True, mainloop=DBusGMainLoop())
         proxy = bus.get_object("com.ubuntu.SoftwareProperties", "/")
         iface = dbus.Interface(proxy, "com.ubuntu.SoftwareProperties")
         self.iface = iface
         self._signal_id = iface.connect_to_signal(
             "SourcesListModified", self._on_sources_list_modified)
-        self.loop = GLib.MainLoop(GLib.main_context_default())
 
     def tearDown(self):
         # ensure we remove the "modified" signal again
@@ -105,12 +138,22 @@ class TestDBus(unittest.TestCase):
 
     def _on_sources_list_modified(self):
         #print("_on_modified_sources_list")
-        self.loop.quit()
+        self.sources_list_count += 1
 
     def _debug_sourceslist(self, text=""):
         with open(self.sources_list_path) as f:
             sourceslist = f.read()
             logging.debug("sourceslist: %s '%s'" % (text, sourceslist))
+
+    # this is an async call - give it a few seconds to catch up with what we expect
+    def _assert_eventually(self, prop, n):
+        for i in range(9):
+            if getattr(self, prop) == n:
+                self.assertEqual(getattr(self, prop), n)
+            else:
+                time.sleep(1)
+        # nope, you die now
+        self.assertEqual(getattr(self, prop), n)
 
     def test_enable_disable_component(self):
         # ensure its not there
@@ -129,8 +172,7 @@ class TestDBus(unittest.TestCase):
         with open(self.sources_list_path) as f:
             sourceslist = f.read()
             self.assertFalse("universe" in sourceslist)
-        # wait for the _on_modified_sources_list signal to arrive"
-        self.loop.run()
+        self._assert_eventually("sources_list_count", 2)
 
     def test_enable_enable_disable_source_code_sources(self):
         # ensure its not there
@@ -150,8 +192,7 @@ class TestDBus(unittest.TestCase):
         with open(self.sources_list_path) as f:
             sourceslist = f.read()
             self.assertFalse("deb-src" in sourceslist)
-        # wait for the _on_modified_sources_list signal to arrive"
-        self.loop.run()
+        self._assert_eventually("sources_list_count", 3)
 
     def test_enable_child_source(self):
         child_source = "%s-updates" % self.distro_release
@@ -172,9 +213,8 @@ class TestDBus(unittest.TestCase):
         with open(self.sources_list_path) as f:
             sourceslist = f.read()
             self.assertFalse(child_source in sourceslist)
-        # wait for the _on_modified_sources_list signal to arrive"
-        self.loop.run()
-        
+        self._assert_eventually("sources_list_count", 2)
+
     def test_toggle_source(self):
         # test toggle
         source = get_test_source_line()
@@ -190,8 +230,7 @@ class TestDBus(unittest.TestCase):
         with open(self.sources_list_path) as f:
             sourceslist = f.read()
             self.assertFalse("# deb http://archive.ubuntu.com/ubuntu" in sourceslist)
-        # wait for the _on_modified_sources_list signal to arrive"
-        self.loop.run()
+        self._assert_eventually("sources_list_count", 2)
 
     def test_replace_entry(self):
         # test toggle
@@ -203,10 +242,9 @@ class TestDBus(unittest.TestCase):
             sourceslist = f.read()
             self.assertTrue(source_new in sourceslist)
             self.assertFalse(source in sourceslist)
-        # wait for the _on_modified_sources_list signal to arrive"
-        self.loop.run()
+        self._assert_eventually("sources_list_count", 1)
         self.iface.ReplaceSourceEntry(source_new, source)
-        self.loop.run()
+        self._assert_eventually("sources_list_count", 2)
 
     def test_popcon(self):
         # ensure its set to no
@@ -289,8 +327,7 @@ class TestDBus(unittest.TestCase):
             sourceslist = f.read()
             self.assertFalse(s in sourceslist)
             self.assertFalse(s.replace("deb", "# deb-src") in sourceslist)
-        # wait for the _on_modified_sources_list signal to arrive
-        self.loop.run()
+        self._assert_eventually("sources_list_count", 4)
 
     def test_add_gpg_key(self):
         # clean
