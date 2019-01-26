@@ -10,7 +10,6 @@ import locale
 
 from softwareproperties.SoftwareProperties import SoftwareProperties, shortcut_handler
 from softwareproperties.shortcuts import ShortcutException
-from softwareproperties.ppa import DEFAULT_KEYSERVER
 import aptsources
 from aptsources.sourceslist import SourceEntry
 from optparse import OptionParser
@@ -60,19 +59,32 @@ sources.list
     parser.add_option("-r", "--remove", action="store_true",
         dest="remove", default=False,
         help=_("remove repository from sources.list.d directory"))
-    parser.add_option("-k", "--keyserver",
-        dest="keyserver", default=DEFAULT_KEYSERVER,
-        help=_("URL of keyserver. Default: %default"))
     parser.add_option("-s", "--enable-source", action="store_true",
         dest="enable_source", default=False,
         help=_("Allow downloading of the source packages from the repository"))
     parser.add_option("-y", "--yes", action="store_true",
         dest="assume_yes", default=False,
         help=_("Assume yes to all queries"))
+    parser.add_option("-n", "--no-update", action="store_false",
+        dest="update", default=True,
+        help=_("Do not update package cache after adding"))
     parser.add_option("-u", "--update", action="store_true",
-        dest="update", default=False,
-        help=_("Update package cache after adding"))
+        dest="update", default=True,
+        help=_("Update package cache after adding (legacy option)"))
+    parser.add_option("-k", "--keyserver",
+        dest="keyserver", default="",
+        help=_("Legacy option, unused."))
+    
     (options, args) = parser.parse_args()
+    
+    # We prefer to run apt-get update here. The built-in update support
+    # does not have any progress, and only works for shortcuts. Moving
+    # it to something like save() and using apt.progress.text would
+    # solve the problem, but the new errors might cause problems with
+    # the dbus server or other users of the API. Also, it's unclear
+    # how good the text progress is or how to pass it best.
+    update = options.update
+    options.update = False
 
     if os.geteuid() != 0:
         print(_("Error: must run as root"))
@@ -114,6 +126,8 @@ sources.list
                 print(_("'%s' distribution component is already enabled for all sources.") % line)
                 sys.exit(0)
         sp.sourceslist.save()
+        if update and not options.remove:
+            os.execvp("apt-get", ["apt-get", "update"])
         sys.exit(0)
 
     # this wasn't a component name ('multiverse', 'backports'), so its either
@@ -177,3 +191,6 @@ sources.list
             sys.exit(1)
 
         sp.sourceslist.save()
+        if update and not options.remove:
+            os.execvp("apt-get", ["apt-get", "update"])
+        sys.exit(0)

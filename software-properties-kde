@@ -36,7 +36,6 @@ from aptsources.sourceslist import SourcesList
 #sys.path.append("@prefix@/share/update-manager/python")
 
 from softwareproperties.kde.SoftwarePropertiesKDE import SoftwarePropertiesKDE
-from softwareproperties.ppa import DEFAULT_KEYSERVER
 
 import sip
 
@@ -45,7 +44,6 @@ class OptionParsed:
     massive_debug = False
     no_update = False
     enable_component = ""
-    keyserver = DEFAULT_KEYSERVER
 
 #--------------- main ------------------
 if __name__ == '__main__':
@@ -89,7 +87,7 @@ if __name__ == '__main__':
                                    "name");
     parser.addOption(ppaOption);
     keyServerOption = QCommandLineOption("keyserver",
-                                         _("URL of keyserver"),
+                                         _("Legacy option, unused"),
                                          "url");
     parser.addOption(keyServerOption);
     winidOption = QCommandLineOption("attach", _("Win ID to act as a dialogue for"),
@@ -126,8 +124,6 @@ if __name__ == '__main__':
     attachWinID = None
     if parser.isSet(winidOption):
         attachWinID = parser.value(winidOption)
-    if parser.isSet(keyServerOption):
-        options.keyserver = parser.value(keyServerOption)
     # datadir has a default value, so always read it
     data_dir = parser.value(dataDirOption)
 

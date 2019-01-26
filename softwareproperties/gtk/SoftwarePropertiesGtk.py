@@ -1,11 +1,12 @@
 #  GTK+ based frontend to software-properties
 #
-#  Copyright (c) 2004-2007 Canonical Ltd.
+#  Copyright (c) 2004-2018 Canonical Ltd.
 #                2004-2005 Michiel Sikkes
 #
 #  Author: Michiel Sikkes <michiel@eyesopened.nl>
 #          Michael Vogt <mvo@debian.org>
 #          Sebastian Heinlein <glatzor@ubuntu.com>
+#          Andrea Azzarone <andrea.azzarone@canonical.com>
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -26,6 +27,9 @@ from __future__ import absolute_import, print_function
 
 import apt
 import apt_pkg
+import aptsources.distro
+from datetime import datetime
+import distro_info
 import dbus
 from gettext import gettext as _
 import gettext
@@ -48,8 +52,11 @@ from .DialogMirror import DialogMirror
 from .DialogEdit import DialogEdit
 from .DialogCacheOutdated import DialogCacheOutdated
 from .DialogAddSourcesList import DialogAddSourcesList
+from .DialogLivepatchError import DialogLivepatchError
+from .DialogAuth import DialogAuth
 
 import softwareproperties
+from softwareproperties.GoaAuth import GoaAuth
 import softwareproperties.distro
 from softwareproperties.SoftwareProperties import SoftwareProperties
 import softwareproperties.SoftwareProperties
@@ -78,6 +85,8 @@ RESPONSE_ADD = 2
     STORE_VISIBLE
 ) = list(range(5))
 
+LIVEPATCH_TIMEOUT = 1200
+
 
 def error(parent_window, summary, msg):
     """ show a error dialog """
@@ -90,6 +99,18 @@ def error(parent_window, summary, msg):
     dialog.run()
     dialog.destroy()
     return False
+
+
+def get_dependencies(apt_cache, package_name, pattern=None):
+    """ Get the package dependencies, which can be filtered out by a pattern """
+    dependencies = []
+    for or_group in apt_cache[package_name].candidate.dependencies:
+        for dep in or_group:
+            if dep.rawtype in ["Depends", "PreDepends"]:
+                dependencies.append(dep.name)
+    if pattern:
+        dependencies = [ x for x in dependencies if x.find(pattern) != -1 ]
+    return dependencies
 
 
 class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
@@ -182,6 +203,8 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.show_distro()
         # Setup and show the Additonal Drivers tab
         self.init_drivers()
+        # Setup and show the LivePatch tab
+        self.init_livepatch()
 
         # Connect to switch-page before setting initial tab. Otherwise the
         # first switch goes unnoticed.
@@ -283,7 +306,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
 
     def set_security_update_level(self):
         """Fetch the security level, Enable/Disable and set the value appropriately"""
-        
+
         # Security Updates
         level_sec = self.get_update_automation_level()
         if level_sec == None:
@@ -298,7 +321,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             self.combobox_security_updates.set_active(1)  # Download automatically
         elif level_sec == softwareproperties.UPDATE_INST_SEC:
             self.combobox_security_updates.set_active(2)  # Download and install automatically
-            
+
 
     def init_distro(self):
         """Setup the user interface elements to represent the distro"""
@@ -493,7 +516,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         except dbus.DBusException as e:
             if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                 logging.error("Authentication canceled, changes have not been saved")
-                
+
                 combo_handler = self.handlers[self.combobox_security_updates]
                 self.combobox_security_updates.handler_block(combo_handler)
                 self.set_security_update_level()
@@ -520,13 +543,13 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         except dbus.DBusException as e:
             if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                 logging.error("Authentication canceled, changes have not been saved")
-                
+
                 combo_handler = self.handlers[self.combobox_release_upgrades]
                 self.combobox_release_upgrades.handler_block(combo_handler)
                 i = self.get_release_upgrades_policy()
                 self.combobox_release_upgrades.set_active(i)
                 self.combobox_release_upgrades.handler_unblock(combo_handler)
-                
+
 
     def on_combobox_server_changed(self, combobox):
         """
@@ -880,7 +903,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             except dbus.DBusException as e:
                 if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
                     logging.error("Authentication canceled, changes have not been saved")
-                    
+
                     update_days = self.get_update_interval()
                     combo_handler = self.handlers[self.combobox_update_interval]
                     for key in self.combobox_interval_mapping:
@@ -1012,6 +1035,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
     def on_delete_event(self, widget, args):
         """Close the window if requested"""
         self.on_close_button(widget)
+        return self.quit_when_livepatch_responds
 
     def on_close_button(self, widget):
         """Show a dialog that a reload of the channel information is required
@@ -1021,7 +1045,11 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
             d = DialogCacheOutdated(self.window_main,
                                     self.datadir)
             d.run()
-        self.quit()
+        if self.waiting_livepatch_response:
+            self.quit_when_livepatch_responds = True
+            self.hide()
+        else:
+            self.quit()
 
     def on_button_add_cdrom_clicked(self, widget):
         """ when a cdrom is requested for adding """
@@ -1074,6 +1102,14 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         for pkg in self.driver_changes:
             if pkg.is_installed:
                 removals.append(pkg.shortname)
+                # The main NVIDIA package is only a metapackage.
+                # We need to collect its dependencies, so that
+                # we can uninstall the driver properly.
+                if 'nvidia' in pkg.shortname:
+                    for dep in get_dependencies(self.apt_cache, pkg.shortname, 'nvidia'):
+                        dep_pkg = self.apt_cache[dep]
+                        if dep_pkg.is_installed:
+                            removals.append(dep_pkg.shortname)
             else:
                 installs.append(pkg.shortname)
 
@@ -1113,7 +1149,24 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
         self.clear_changes()
 
     def on_driver_restart_clicked(self, button_restart):
-        subprocess.call(['gnome-session-quit', '--reboot'])
+        if 'XDG_CURRENT_DESKTOP' in os.environ:
+            desktop = os.environ['XDG_CURRENT_DESKTOP']
+        else:
+            desktop = 'Unknown'
+
+        if (desktop == 'ubuntu:GNOME' and
+                os.path.exists('/usr/bin/gnome-session-quit')):
+            # argument presents a dialog to cancel reboot
+            subprocess.call(['gnome-session-quit', '--reboot'])
+        elif (desktop == 'XFCE' and
+              os.path.exists('/usr/bin/xfce4-session-logout')):
+            subprocess.call(['xfce4-session-logout'])
+        elif (desktop == 'LXDE' and
+              os.path.exists('/usr/bin/lubuntu-logout')):
+            subprocess.call(['lubuntu-logout'])
+        elif (desktop == 'LXQt' and
+              os.path.exists('/usr/bin/lxqt-leave')):
+            subprocess.call(['lxqt-leave'])
 
     def clear_changes(self):
         self.orig_selection = {}
@@ -1201,7 +1254,7 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
                         lmp = self.apt_cache[linux_meta]
                         if not lmp.is_installed:
                             self.driver_changes.append(lmp)
-        except KeyError:
+        except (AttributeError, KeyError):
             pass
 
         if button.get_active():
@@ -1429,3 +1482,164 @@ class SoftwarePropertiesGtk(SoftwareProperties, SimpleGtkbuilderApp):
                                                % {'count': self.nonfree_drivers})
         else:
             self.label_driver_action.set_label(_("No proprietary drivers are in use."))
+
+    #
+    # Livepatch
+    #
+    def init_livepatch(self):
+        self.goa_auth = GoaAuth()
+        self.waiting_livepatch_response = False
+        self.quit_when_livepatch_responds = False
+
+        if not self.is_livepatch_supported():
+            self.grid_livepatch.set_visible(False)
+            return
+
+        self.checkbutton_livepatch.set_active(self.is_livepatch_enabled())
+        self.on_goa_auth_changed()
+
+        # hacky way to monitor if livepatch is enabled or not
+        file = Gio.File.new_for_path(path=self.LIVEPATCH_RUNNING_FILE)
+        self.lp_monitor = file.monitor_file(Gio.FileMonitorFlags.NONE)
+
+        # connect to signals
+        self.handlers[self.goa_auth] = \
+            self.goa_auth.connect('notify', lambda o, p: self.on_goa_auth_changed())
+        self.handlers[self.checkbutton_livepatch] = \
+            self.checkbutton_livepatch.connect('toggled', self.on_checkbutton_livepatch_toggled)
+        self.handlers[self.button_ubuntuone] =  \
+            self.button_ubuntuone.connect('clicked', self.on_button_ubuntuone_clicked)
+        self.handlers[self.lp_monitor] = \
+            self.lp_monitor.connect('changed', self.on_livepatch_status_changed)
+
+    def has_online_accounts(self):
+        try:
+            d = Gio.DesktopAppInfo.new('gnome-online-accounts-panel.desktop')
+            return d != None
+        except Exception:
+            return False
+
+    def is_livepatch_supported(self):
+        distro = aptsources.distro.get_distro()
+        di = distro_info.UbuntuDistroInfo()
+        return self.has_online_accounts() and \
+               di.is_lts(distro.codename) and \
+               distro.codename in di.supported(datetime.now().date())
+
+    def on_goa_auth_changed(self):
+        if self.goa_auth.logged:
+            self.button_ubuntuone.set_label(_('Sign Out'))
+
+            if self.goa_auth.token:
+                self.checkbutton_livepatch.set_sensitive(True)
+                self.label_livepatch_login.set_label(_('Signed in as %s' % self.goa_auth.username))
+            else:
+                self.checkbutton_livepatch.set_sensitive(False)
+                text = _('%s isn\'t authorized to use Livepatch.' % self.goa_auth.username)
+                text = "<span color='red'>" +  text + "</span>"
+                self.label_livepatch_login.set_markup(text)
+        else:
+            if self.is_livepatch_enabled() and not self.waiting_livepatch_response:
+                # Allow the user to disable livepatch even if
+                # the account expired (see LP: #1768797)
+                self.checkbutton_livepatch.set_sensitive(True)
+                self.label_livepatch_login.set_label(_('Livepatch is active.'))
+            else:
+                self.checkbutton_livepatch.set_sensitive(False)
+                self.label_livepatch_login.set_label(_('To use Livepatch you need to sign in.'))
+
+            self.button_ubuntuone.set_label(_('Sign In…'))
+
+    def on_livepatch_status_changed(self, file_monitor, file, other_file, event_type):
+        if not self.waiting_livepatch_response:
+            self.checkbutton_livepatch.set_active(self.is_livepatch_enabled())
+            self.on_goa_auth_changed()
+
+    def on_button_ubuntuone_clicked(self, button):
+        if self.goa_auth.logged:
+            self.do_logout()
+        else:
+            self.do_login()
+
+    def do_login(self):
+        try:
+            # Show login dialog!
+            dialog = DialogAuth(self.window_main, self.datadir)
+            response = dialog.run()
+        except Exception as e:
+            logging.error(e)
+            error(self.window_main,
+                  _("Error enabling Canonical Livepatch"),
+                  _("Please check your Internet connection."))
+        else:
+            if response == Gtk.ResponseType.OK:
+                self.goa_auth.login(dialog.account)
+                if self.goa_auth.logged:
+                    self.checkbutton_livepatch.set_active(True)
+
+    def do_logout(self):
+        self.checkbutton_livepatch.set_active(False)
+        self.goa_auth.logout()
+
+    def on_checkbutton_livepatch_toggled(self, checkbutton):
+        if self.waiting_livepatch_response:
+            return
+
+        self.waiting_livepatch_response = True
+
+        token = ''
+        enabled = False
+        if self.checkbutton_livepatch.get_active():
+            enabled = True
+            token = self.goa_auth.token if self.goa_auth.token else ''
+        self.backend.SetLivepatchEnabled(enabled, token,
+                                         reply_handler=self.livepatch_enabled_reply_handler,
+                                         error_handler=self.livepatch_enabled_error_handler,
+                                         timeout=LIVEPATCH_TIMEOUT)
+
+    def livepatch_enabled_reply_handler(self, is_error, prompt):
+        self.sync_checkbutton_livepatch(is_error, prompt)
+
+    def livepatch_enabled_error_handler(self, e):
+        if e._dbus_error_name == 'com.ubuntu.SoftwareProperties.PermissionDeniedByPolicy':
+            logging.error("Authentication canceled, changes have not been saved")
+            self.sync_checkbutton_livepatch(is_error=True, prompt=None)
+        else:
+            self.sync_checkbutton_livepatch(is_error=True, prompt=str(e))
+
+    def sync_checkbutton_livepatch(self, is_error, prompt):
+        if is_error:
+            self.waiting_livepatch_response = False
+            self.checkbutton_livepatch.handler_block(self.handlers[self.checkbutton_livepatch])
+            self.checkbutton_livepatch.set_active(self.is_livepatch_enabled())
+            self.checkbutton_livepatch.handler_unblock(self.handlers[self.checkbutton_livepatch])
+
+            if prompt:
+                dialog = DialogLivepatchError(self.window_main, self.datadir)
+                response = dialog.run(prompt, show_settings_button=self.quit_when_livepatch_responds)
+                if response == DialogLivepatchError.RESPONSE_SETTINGS:
+                    self.window_main.show()
+                    self.quit_when_livepatch_responds = False
+        else:
+            do_dbus_call = False
+            if self.is_livepatch_enabled() and not self.checkbutton_livepatch.get_active():
+                do_dbus_call = True
+                enabled = False
+                token = ''
+            elif not self.is_livepatch_enabled() and self.checkbutton_livepatch.get_active():
+                do_dbus_call = True
+                enabled = True
+                token = self.goa_auth.token if self.goa_auth.token else ''
+            else:
+                self.waiting_livepatch_response = False
+
+            if do_dbus_call:
+                self.backend.SetLivepatchEnabled(enabled, token,
+                                                 reply_handler=self.livepatch_enabled_reply_handler,
+                                                 error_handler=self.livepatch_enabled_error_handler,
+                                                 timeout=LIVEPATCH_TIMEOUT)
+
+        self.on_goa_auth_changed()
+
+        if self.quit_when_livepatch_responds:
+            self.on_close_button(self.button_close)

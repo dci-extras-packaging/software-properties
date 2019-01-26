@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: Sebastian Heinlein <sebi@glatzor.de>\n"
-"POT-Creation-Date: 2016-09-09 03:13-0400\n"
+"POT-Creation-Date: 2018-04-12 14:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,6 +32,7 @@ msgid "Software & Updates"
 msgstr ""
 
 #: ../data/software-properties-gtk.desktop.in.h:2
+#: ../data/software-properties-gtk.appdata.xml.in.h:2
 #: ../data/software-properties-kde.desktop.in.h:2
 msgid "Configure the sources for installable software and updates"
 msgstr ""
@@ -40,124 +41,144 @@ msgstr ""
 msgid "Drivers;Repositories;Repository;PPA;"
 msgstr ""
 
+#: ../data/software-properties-gtk.appdata.xml.in.h:1
+msgid "Software &amp; Updates"
+msgstr ""
+
+#: ../data/software-properties-gtk.appdata.xml.in.h:3
+msgid ""
+"The Software &amp; Updates app is a utility for configuring which apt "
+"repositories your computer uses for updates and how frequently your computer "
+"checks for updates."
+msgstr ""
+
+#: ../data/software-properties-gtk.appdata.xml.in.h:4
+msgid ""
+"The utility also allows selecting additional drivers for your computer and "
+"enabling the Canonical Livepatch service."
+msgstr ""
+
 #: ../data/software-properties-kde.desktop.in.h:1
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:674
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:693
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:685
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:704
 msgid "Software Sources"
 msgstr ""
 
-#: ../software-properties-gtk:97
+#: ../software-properties-gtk:96
 msgid ""
 "The --enable-component/-e command-line switch has been deprecated. Instead "
 "of 'software-properties-gtk -e multiverse' you can use \n"
 "'add-apt-repository multiverse'"
 msgstr ""
 
-#: ../software-properties-kde:75
+#: ../software-properties-kde:73
 msgid "Print some debug information to the command line"
 msgstr ""
 
-#: ../software-properties-kde:78 ../add-apt-repository:59
+#: ../software-properties-kde:76 ../add-apt-repository:58
 msgid "Print a lot of debug information to the command line"
 msgstr ""
 
-#: ../software-properties-kde:81
+#: ../software-properties-kde:79
 msgid ""
 "No update on repository change (useful if called from an external program)"
 msgstr ""
 
-#: ../software-properties-kde:84
+#: ../software-properties-kde:82
 msgid "Enable the specified component of the distro's repositories"
 msgstr ""
 
-#: ../software-properties-kde:88
+#: ../software-properties-kde:86
 msgid "Enable PPA with the given name"
 msgstr ""
 
-#: ../software-properties-kde:92
-msgid "URL of keyserver"
+#: ../software-properties-kde:90
+msgid "Legacy option, unused"
 msgstr ""
 
-#: ../software-properties-kde:95
+#: ../software-properties-kde:93
 msgid "Win ID to act as a dialogue for"
 msgstr ""
 
-#: ../software-properties-kde:98
+#: ../software-properties-kde:96
 msgid "data directory for UI files"
 msgstr ""
 
-#: ../add-apt-repository:62
+#: ../add-apt-repository:61
 msgid "remove repository from sources.list.d directory"
 msgstr ""
 
-#: ../add-apt-repository:65
-#, c-format
-msgid "URL of keyserver. Default: %default"
-msgstr ""
-
-#: ../add-apt-repository:68
+#: ../add-apt-repository:64
 msgid "Allow downloading of the source packages from the repository"
 msgstr ""
 
-#: ../add-apt-repository:71
+#: ../add-apt-repository:67
 msgid "Assume yes to all queries"
 msgstr ""
 
-#: ../add-apt-repository:74
-msgid "Update package cache after adding"
+#: ../add-apt-repository:70
+msgid "Do not update package cache after adding"
 msgstr ""
 
-#: ../add-apt-repository:78
+#: ../add-apt-repository:73
+msgid "Update package cache after adding (legacy option)"
+msgstr ""
+
+#: ../add-apt-repository:76
+msgid "Legacy option, unused."
+msgstr ""
+
+#: ../add-apt-repository:90
 msgid "Error: must run as root"
 msgstr ""
 
-#: ../add-apt-repository:82
+#: ../add-apt-repository:94
 msgid "Error: need a repository as argument"
 msgstr ""
 
-#: ../add-apt-repository:85
+#: ../add-apt-repository:97
 msgid "Error: need a single repository as argument"
 msgstr ""
 
-#: ../add-apt-repository:105
+#: ../add-apt-repository:117
 #, c-format
 msgid "'%s' distribution component disabled for all sources."
 msgstr ""
 
-#: ../add-apt-repository:107
+#: ../add-apt-repository:119
 #, c-format
 msgid "'%s' distribution component is already disabled for all sources."
 msgstr ""
 
-#: ../add-apt-repository:112
+#: ../add-apt-repository:124
 #, c-format
 msgid "'%s' distribution component enabled for all sources."
 msgstr ""
 
-#: ../add-apt-repository:114
+#: ../add-apt-repository:126
 #, c-format
 msgid "'%s' distribution component is already enabled for all sources."
 msgstr ""
 
-#: ../add-apt-repository:136
+#: ../add-apt-repository:150
 #, c-format
 msgid " More info: %s"
 msgstr ""
 
-#: ../add-apt-repository:140
-msgid "Press [ENTER] to continue or ctrl-c to cancel removing it"
+#: ../add-apt-repository:154
+msgid "Press [ENTER] to continue or Ctrl-c to cancel removing it."
 msgstr ""
 
-#: ../add-apt-repository:142
-msgid "Press [ENTER] to continue or ctrl-c to cancel adding it"
+#: ../add-apt-repository:156
+msgid "Press [ENTER] to continue or Ctrl-c to cancel adding it."
 msgstr ""
 
-#: ../add-apt-repository:160 ../add-apt-repository:164
+#: ../add-apt-repository:178 ../add-apt-repository:182
 #, c-format
 msgid "Error: '%s' doesn't exist in a sourcelist file"
 msgstr ""
 
-#: ../add-apt-repository:169
+#: ../add-apt-repository:187
 #, c-format
 msgid "Error: '%s' invalid"
 msgstr ""
@@ -211,6 +232,7 @@ msgstr ""
 
 #: ../softwareproperties/kde/DialogMirror.py:220
 #: ../softwareproperties/gtk/DialogMirror.py:338
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1536
 msgid "Please check your Internet connection."
 msgstr ""
 
@@ -240,7 +262,7 @@ msgid "Every two weeks"
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:172
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:247
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:258
 #, python-format
 msgid "Every %s days"
 msgstr ""
@@ -253,7 +275,7 @@ msgstr ""
 
 #. TRANS: %s stands for the distribution name e.g. Debian or Ubuntu
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:218
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:307
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:318
 #, python-format
 msgid "%s Software"
 msgstr ""
@@ -262,7 +284,7 @@ msgstr ""
 #. first %s is the description of the component
 #. second %s is the code name of the comp, eg main, universe
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:237
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:320
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:331
 #, python-format
 msgid "%s (%s)"
 msgstr ""
@@ -270,33 +292,33 @@ msgstr ""
 #. add a separator and the option to choose another mirror from the list
 #. #FIXME server_store.append(["sep", None, True])
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:300
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:450
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:543
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:461
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:554
 msgid "Other..."
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:668
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:966
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:977
 msgid "Import key"
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:671
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:980
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:991
 msgid "Error importing selected file"
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:672
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:981
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:992
 msgid "The selected file may not be a GPG key file or it might be corrupt."
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:685
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:997
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1008
 msgid "Error removing the key"
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:686
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:998
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1009
 msgid "The key you selected could not be removed. Please report this as a bug."
 msgstr ""
 
@@ -317,7 +339,7 @@ msgid "CD Error"
 msgstr ""
 
 #: ../softwareproperties/kde/SoftwarePropertiesKDE.py:731
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:832
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:843
 msgid "Error scanning the CD"
 msgstr ""
 
@@ -359,13 +381,47 @@ msgstr ""
 msgid "Source code"
 msgstr ""
 
-#: ../softwareproperties/SoftwareProperties.py:502
-#: ../softwareproperties/SoftwareProperties.py:509
+#: ../softwareproperties/SoftwareProperties.py:526
+#: ../softwareproperties/SoftwareProperties.py:533
 msgid "(Source Code)"
 msgstr ""
 
-#: ../softwareproperties/SoftwareProperties.py:515
+#: ../softwareproperties/SoftwareProperties.py:539
 msgid "Source Code"
+msgstr ""
+
+#: ../softwareproperties/SoftwareProperties.py:940
+#: ../softwareproperties/SoftwareProperties.py:987
+msgid "Canonical Livepatch snap cannot be installed."
+msgstr ""
+
+#: ../softwareproperties/SoftwareProperties.py:976
+msgid "Canonical Livepatch snap cannot be enabled."
+msgstr ""
+
+#: ../softwareproperties/SoftwareProperties.py:990
+msgid "Canonical Livepatch cannot be enabled."
+msgstr ""
+
+#: ../softwareproperties/SoftwareProperties.py:1005
+msgid "Canonical Livepatch cannot be disabled."
+msgstr ""
+
+#: ../softwareproperties/gtk/DialogAuth.py:74
+msgid "To continue choose an Ubuntu Single Sign-On account."
+msgstr ""
+
+#: ../softwareproperties/gtk/DialogAuth.py:75
+msgid "Use another account…"
+msgstr ""
+
+#: ../softwareproperties/gtk/DialogAuth.py:77
+msgid "To continue you need an Ubuntu Single Sign-On account."
+msgstr ""
+
+#: ../softwareproperties/gtk/DialogAuth.py:78
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1514
+msgid "Sign In…"
 msgstr ""
 
 #: ../softwareproperties/gtk/DialogMirror.py:250
@@ -377,135 +433,157 @@ msgstr ""
 msgid "Completed %s of %s tests"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:684
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:703
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:695
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:714
 msgid "Active"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:742
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:753
 msgid "Key"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:759
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:770
 msgid "_Add key from paste data"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:772
 #: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:783
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:794
 msgid "Error importing key"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:773
 #: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:784
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:795
 msgid "The selected data may not be a GPG key file or it might be corrupt."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:833
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:844
 msgid "Could not find a suitable CD."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1043
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1059
 msgid "Applying changes..."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1124
-#: ../data/gtkbuilder/main.ui.h:42
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1158
+#: ../data/gtkbuilder/main.ui.h:43
 msgid "Re_vert"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1126
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1160
 msgid "_Apply Changes"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1128
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1162
 msgid "_Cancel"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1130
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1164
 msgid "_Restart..."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1145
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1179
 msgid "Searching for available drivers..."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1175
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1209
 msgid "An error occurred while searching for drivers."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1249
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1283
 msgid "This device is using the recommended driver."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1250
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1284
 msgid "This device is using an alternative driver."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1251
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1285
 msgid "This device is using a manually-installed driver."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1252
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1286
 msgid "This device is not working."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1261
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1295
 msgid "Continue using a manually installed driver"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1288
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1322
 msgid "Using {} from {}"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1290
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1324
 msgid "Using {}"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1297
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1331
 msgid "open source"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1299
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1333
 msgid "proprietary"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1302
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1336
 #, python-brace-format
 msgid "{base_description} ({licence}, tested)"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1304
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1338
 #, python-brace-format
 msgid "{base_description} ({licence})"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1324
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1358
 msgid "Do not use the device"
 msgstr ""
 
 #. No drivers found.
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1344
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1378
 msgid "No additional drivers available."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1362
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1396
 msgid "Unknown"
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1411
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1445
 msgid "You need to restart the computer to complete the driver changes."
 msgstr ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1425
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1459
 #, python-format
 msgid "%(count)d proprietary driver in use."
 msgid_plural "%(count)d proprietary drivers in use."
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1430
-#: ../data/gtkbuilder/main.ui.h:37
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1464
+#: ../data/gtkbuilder/main.ui.h:38
 msgid "No proprietary drivers are in use."
+msgstr ""
+
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1502
+msgid "Sign Out"
+msgstr ""
+
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1506
+#, python-format
+msgid "Signed in as %s"
+msgstr ""
+
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1509
+#, python-format
+msgid "%s isn't authorized to use Livepatch."
+msgstr ""
+
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1515
+msgid "To use Livepatch you need to sign in."
+msgstr ""
+
+#: ../softwareproperties/gtk/SoftwarePropertiesGtk.py:1535
+msgid "Error enabling Canonical Livepatch"
 msgstr ""
 
 #: ../softwareproperties/gtk/DialogAddSourcesList.py:46
@@ -542,23 +620,23 @@ msgid ""
 msgstr ""
 
 #. some known keys
-#: ../softwareproperties/AptAuth.py:39
+#: ../softwareproperties/AptAuth.py:40
 msgid "Ubuntu Archive Automatic Signing Key <ftpmaster@ubuntu.com>"
 msgstr ""
 
-#: ../softwareproperties/AptAuth.py:40
+#: ../softwareproperties/AptAuth.py:41
 msgid "Ubuntu CD Image Automatic Signing Key <cdimage@ubuntu.com>"
 msgstr ""
 
-#: ../softwareproperties/AptAuth.py:41
+#: ../softwareproperties/AptAuth.py:42
 msgid "Ubuntu Archive Automatic Signing Key (2012) <ftpmaster@ubuntu.com>"
 msgstr ""
 
-#: ../softwareproperties/AptAuth.py:42
+#: ../softwareproperties/AptAuth.py:43
 msgid "Ubuntu CD Image Automatic Signing Key (2012) <cdimage@ubuntu.com>"
 msgstr ""
 
-#: ../softwareproperties/AptAuth.py:43
+#: ../softwareproperties/AptAuth.py:44
 msgid "Ubuntu Extras Archive Automatic Signing Key <ftpmaster@ubuntu.com>"
 msgstr ""
 
@@ -679,65 +757,69 @@ msgid "When there are other updates:"
 msgstr ""
 
 #: ../data/gtkbuilder/main.ui.h:27
-msgid "Notify me of a new Ubuntu version:"
+msgid "Use Canonical Livepatch to increase security between restarts"
 msgstr ""
 
 #: ../data/gtkbuilder/main.ui.h:28
-msgid "Updates"
+msgid "Notify me of a new Ubuntu version:"
 msgstr ""
 
 #: ../data/gtkbuilder/main.ui.h:29
-msgid "<b>Trusted software providers</b>"
+msgid "Updates"
 msgstr ""
 
 #: ../data/gtkbuilder/main.ui.h:30
-msgid "    "
+msgid "<b>Trusted software providers</b>"
 msgstr ""
 
 #: ../data/gtkbuilder/main.ui.h:31
+msgid "    "
+msgstr ""
+
+#: ../data/gtkbuilder/main.ui.h:32
 msgid ""
 "Keys are used to authenticate the correct source of software and so protect "
 "your computer from malicious software"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:32
+#: ../data/gtkbuilder/main.ui.h:33
 msgid "_Import Key File..."
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:33
+#: ../data/gtkbuilder/main.ui.h:34
 msgid "Import the public key from a trusted software provider"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:34
+#: ../data/gtkbuilder/main.ui.h:35
 msgid "Restore _Defaults"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:35
+#: ../data/gtkbuilder/main.ui.h:36
 msgid "Restore the default keys of your distribution"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:36
+#: ../data/gtkbuilder/main.ui.h:37
 msgid "Authentication"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:38
+#: ../data/gtkbuilder/main.ui.h:39
 msgid ""
 "<small>A proprietary driver has private code that Ubuntu developers can't "
 "review or improve. Security and other updates are dependent on the driver "
 "vendor.</small>"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:39
+#: ../data/gtkbuilder/main.ui.h:40
 msgid "Additional Drivers"
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:40
+#: ../data/gtkbuilder/main.ui.h:41
 msgid ""
 "Use proposed updates if you’re willing to report bugs on any problems that "
 "occur."
 msgstr ""
 
-#: ../data/gtkbuilder/main.ui.h:41
+#: ../data/gtkbuilder/main.ui.h:42
 msgid "Developer Options"
 msgstr ""
 
@@ -800,4 +882,16 @@ msgstr ""
 
 #: ../data/gtkbuilder/dialog-add.ui.h:3
 msgid "_Add Source"
+msgstr ""
+
+#: ../data/gtkbuilder/dialog-auth.ui.h:1
+msgid "To enable Livepatch choose an Ubuntu Single Sign-on account."
+msgstr ""
+
+#: ../data/gtkbuilder/dialog-auth.ui.h:2
+msgid "<b>Use another account...</b>"
+msgstr ""
+
+#: ../data/gtkbuilder/dialog-auth.ui.h:3
+msgid "Choose an account"
 msgstr ""

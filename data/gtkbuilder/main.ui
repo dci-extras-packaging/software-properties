@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkListStore" id="model_normal_updates_display">
     <columns>
       <!-- column-name text -->
@@ -160,7 +161,6 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="xalign">0</property>
                                         <property name="draw_indicator">True</property>
@@ -396,7 +396,6 @@
                             <property name="can_focus">True</property>
                             <property name="can_default">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <signal name="clicked" handler="on_add_clicked" swapped="no"/>
                           </object>
                           <packing>
@@ -413,7 +412,6 @@
                             <property name="can_focus">True</property>
                             <property name="can_default">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <signal name="clicked" handler="on_edit_clicked" swapped="no"/>
                           </object>
                           <packing>
@@ -430,7 +428,6 @@
                             <property name="can_focus">True</property>
                             <property name="can_default">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
                             <signal name="clicked" handler="on_remove_clicked" swapped="no"/>
                           </object>
@@ -459,7 +456,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <signal name="clicked" handler="on_button_add_cdrom_clicked" swapped="no"/>
                           </object>
                           <packing>
@@ -570,8 +566,8 @@
                               <object class="GtkLabel" id="label3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">Automatically check for updates:</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -613,8 +609,8 @@
                               <object class="GtkLabel" id="label4">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">When there are security updates:</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -656,8 +652,8 @@
                               <object class="GtkLabel" id="label5">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">When there are other updates:</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -700,6 +696,84 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkAlignment" id="alignment3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkGrid" id="grid_livepatch">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">center</property>
+                        <property name="hexpand">False</property>
+                        <property name="vexpand">False</property>
+                        <property name="row_spacing">6</property>
+                        <property name="column_spacing">6</property>
+                        <child>
+                          <object class="GtkBox" id="hbox_livepatch">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkLabel" id="label_livepatch_login">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="button_ubuntuone">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="checkbutton_livepatch">
+                            <property name="label" translatable="yes">Use Canonical Livepatch to increase security between restarts</property>
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="xalign">0</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkAlignment" id="alignment15">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -713,8 +787,8 @@
                           <object class="GtkLabel" id="label29">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">1</property>
                             <property name="label" translatable="yes">Notify me of a new Ubuntu version:</property>
+                            <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -746,7 +820,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>
@@ -775,9 +849,9 @@
                   <object class="GtkLabel" id="label27">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">&lt;b&gt;Trusted software providers&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -851,7 +925,6 @@
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_markup" translatable="yes">Import the public key from a trusted software provider</property>
                                     <property name="tooltip_text" translatable="yes">Import the public key from a trusted software provider</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <signal name="clicked" handler="add_key_clicked" swapped="no"/>
                                   </object>
@@ -868,7 +941,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_stock">True</property>
                                     <signal name="clicked" handler="remove_key_clicked" swapped="no"/>
                                   </object>
@@ -900,7 +972,6 @@
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_markup" translatable="yes">Restore the default keys of your distribution</property>
                                     <property name="tooltip_text" translatable="yes">Restore the default keys of your distribution</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <signal name="clicked" handler="on_restore_clicked" swapped="no"/>
                                   </object>
@@ -1001,8 +1072,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="halign">start</property>
-                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">No proprietary drivers are in use.</property>
+                        <property name="xalign">0</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -1024,11 +1095,11 @@
                   <object class="GtkLabel" id="label_disc">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">&lt;small&gt;A proprietary driver has private code that Ubuntu developers can't review or improve. Security and other updates are dependent on the driver vendor.&lt;/small&gt;</property>
                     <property name="use_markup">True</property>
                     <property name="wrap">True</property>
-                    <property name="max-width-chars">50</property>
+                    <property name="max_width_chars">50</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1090,7 +1161,7 @@
                         <property name="label" translatable="yes">Use proposed updates if you’re willing to report bugs on any problems that occur.</property>
                         <property name="use_markup">True</property>
                         <property name="wrap">True</property>
-                        <property name="max-width-chars">110</property>
+                        <property name="max_width_chars">110</property>
                       </object>
                     </child>
                   </object>
@@ -1138,7 +1209,6 @@
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
                 <signal name="clicked" handler="on_button_revert_clicked" swapped="no"/>
               </object>
@@ -1157,7 +1227,6 @@
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_close_button" swapped="no"/>
               </object>

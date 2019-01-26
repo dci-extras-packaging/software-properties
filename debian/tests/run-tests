@@ -13,20 +13,11 @@ trap cleanup EXIT HUP INT QUIT TERM
 # the test work in other locales too.
 export LC_ALL=C.UTF-8
 
-# dirmngr and/or gpg-agent fail without ~/.gnupg present maybe some
-# places should be properly declaring homedir, instead of just keyrings
-if ! out=$(gpg --list-keys 2>&1); then
-    ret=$?
-    echo "Failed [$ret] to initialize ~/.gnupg with: gpg --list-keys" 1>&2
-    echo "$out" 1>&2;
-    exit $ret
-fi
-
 code=0
 if [ "$TMPDIR" ]; then
-	env -u TMPDIR xvfb-run -e "$tmpdir/xvfb.log" sh -ec "TMPDIR=\"$TMPDIR\" python setup.py test && python3 setup.py test" || code="$?"
+	env -u TMPDIR xvfb-run -e "$tmpdir/xvfb.log" sh -ec "TMPDIR=\"$TMPDIR\" python3 setup.py test" || code="$?"
 else
-	xvfb-run -e "$tmpdir/xvfb.log" sh -ec "python setup.py test && python3 setup.py test" || code="$?"
+	xvfb-run -e "$tmpdir/xvfb.log" sh -ec "python3 setup.py test" || code="$?"
 fi
 if [ "$code" != 0 ]; then
 	echo "xauth/Xrdb output:"

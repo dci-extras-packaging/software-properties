@@ -30,6 +30,12 @@ def has_network():
 
 class ShortcutsTestcase(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        for k in apt.apt_pkg.config.keys():
+            apt.apt_pkg.config.clear(k)
+        apt.apt_pkg.init()
+
     def setUp(self):
         # avoid polution from other tests
         apt.apt_pkg.config.set("Dir", "/")

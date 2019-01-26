@@ -46,7 +46,7 @@ except ImportError:
     HTTPError = pycurl.error
 
 
-DEFAULT_KEYSERVER = "hkp://keyserver.ubuntu.com:80/"
+SKS_KEYSERVER = 'https://keyserver.ubuntu.com/pks/lookup?op=get&options=mr&exact=on&search=0x%s'
 # maintained until 2015
 LAUNCHPAD_PPA_API = 'https://launchpad.net/api/1.0/%s/+archive/%s'
 LAUNCHPAD_USER_API = 'https://launchpad.net/api/1.0/%s'
@@ -79,13 +79,20 @@ class PPAException(Exception):
 def encode(s):
     return re.sub("[^a-zA-Z0-9_-]", "_", s)
 
-def get_info_from_lp(lp_url):
+def get_info_from_https(url, accept_json):
     if NEED_PYCURL:
         # python2 has no cert verification so we need pycurl
-        return _get_https_content_pycurl(lp_url)
+        data = _get_https_content_pycurl(url, accept_json)
     else:
         # python3 has cert verification so we can use the buildin urllib
-        return _get_https_content_py3(lp_url)
+        data = _get_https_content_py3(url, accept_json)
+    if accept_json:
+        return json.loads(data)
+    else:
+        return data
+
+def get_info_from_lp(lp_url):
+    return get_info_from_https(lp_url, True)
 
 def get_ppa_info_from_lp(owner_name, ppa):
     if owner_name[0] != '~':
@@ -106,19 +113,20 @@ def get_current_series_from_lp(distribution):
     return os.path.basename(get_info_from_lp(lp_url)["current_series_link"])
 
 
-def _get_https_content_py3(lp_url):
+def _get_https_content_py3(lp_url, accept_json):
     try:
-        request = urllib.request.Request(str(lp_url), headers={"Accept":" application/json"})
+        headers = {"Accept":" application/json"} if accept_json else {}
+        request = urllib.request.Request(str(lp_url), headers=headers)
         lp_page = urllib.request.urlopen(request, cafile=LAUNCHPAD_PPA_CERT)
-        json_data = lp_page.read().decode("utf-8", "strict")
+        data = lp_page.read().decode("utf-8", "strict")
     except (URLError, HTTPException) as e:
         # HTTPException doesn't have a reason but might have a string
         # representation
         reason = hasattr(e, "reason") and e.reason or e
         raise PPAException("Error reading %s: %s" % (lp_url, reason), e)
-    return json.loads(json_data)
+    return data
 
-def _get_https_content_pycurl(lp_url):
+def _get_https_content_pycurl(lp_url, accept_json):
     # this is the fallback code for python2
     try:
         callback = CurlCallback()
@@ -129,16 +137,17 @@ def _get_https_content_pycurl(lp_url):
         if LAUNCHPAD_PPA_CERT:
             curl.setopt(pycurl.CAINFO, LAUNCHPAD_PPA_CERT)
         curl.setopt(pycurl.URL, str(lp_url))
-        curl.setopt(pycurl.HTTPHEADER, ["Accept: application/json"])
+        if accept_json:
+            curl.setopt(pycurl.HTTPHEADER, ["Accept: application/json"])
         curl.perform()
         response = curl.getinfo(curl.RESPONSE_CODE)
         curl.close()
-        json_data = callback.contents
+        data = callback.contents
     except pycurl.error as e:
         raise PPAException("Error reading %s: %s" % (lp_url, e), e)
     if response != 200:
         raise PPAException("Error reading %s: response code %i" % (lp_url, response))
-    return json.loads(json_data)
+    return data
 
 
 def mangle_ppa_shortcut(shortcut):
@@ -168,14 +177,18 @@ def verify_keyid_is_v4(signing_key_fingerprint):
 class AddPPASigningKey(object):
     " thread class for adding the signing key in the background "
 
-    GPG_DEFAULT_OPTIONS = ["gpg", "--no-default-keyring", "--no-options"]
-
     def __init__(self, ppa_path, keyserver=None):
         self.ppa_path = ppa_path
-        self.keyserver = (keyserver if keyserver is not None
-                          else DEFAULT_KEYSERVER)
+        self._homedir = tempfile.mkdtemp()
 
-    def _recv_key(self, keyring, secret_keyring, signing_key_fingerprint, keyring_dir):
+    def __del__(self):
+        shutil.rmtree(self._homedir)
+
+    def gpg_cmd(self, args):
+        cmd = "gpg -q --homedir %s --no-default-keyring --no-options --import --import-options %s" % (self._homedir, args)
+        return subprocess.Popen(cmd.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        
+    def _recv_key(self, signing_key_fingerprint):
         try:
             # double check that the signing key is a v4 fingerprint (160bit)
             if not verify_keyid_is_v4(signing_key_fingerprint):
@@ -185,57 +198,30 @@ class AddPPASigningKey(object):
         except TypeError:
             print("Error: signing key fingerprint does not exist")
             return False
-        # then get it
-        res = subprocess.call(self.GPG_DEFAULT_OPTIONS + [
-            "--homedir", keyring_dir,
-            "--secret-keyring", secret_keyring,
-            "--keyring", keyring,
-            "--keyserver", self.keyserver,
-            "--recv", signing_key_fingerprint,
-            ])
-        return (res == 0)
 
-    def _export_key(self, keyring, export_keyring, signing_key_fingerprint, keyring_dir):
-        res = subprocess.call(self.GPG_DEFAULT_OPTIONS + [
-          "--homedir", keyring_dir,
-          "--keyring", keyring,
-          "--output", export_keyring,
-          "--export", signing_key_fingerprint,
-          ])
-        if res != 0:
+        return get_info_from_https(SKS_KEYSERVER % signing_key_fingerprint, accept_json=False)
+
+    def _minimize_key(self, key):
+        p = self.gpg_cmd("import-minimal,import-export")
+        (minimal_key, _) = p.communicate(key.encode())
+        
+        if p.returncode != 0:
             return False
-        return True
+        return minimal_key
 
-    def _export_armor_key(self, keyring, export_keyring, signing_key_fingerprint, keyring_dir):
-        res = subprocess.call(self.GPG_DEFAULT_OPTIONS + [
-          "--homedir", keyring_dir,
-          "--keyring", keyring,
-          "--output", export_keyring,
-          "--armor",
-          "--export", signing_key_fingerprint,
-          ])
-        if res != 0:
-            return False
-        return True
-
-    def _get_fingerprints(self, keyring, keyring_dir):
-        cmd = self.GPG_DEFAULT_OPTIONS + [
-          "--homedir", keyring_dir,
-          "--keyring", keyring,
-          "--fingerprint",
-          "--batch",
-          "--with-colons",
-          ]
-        output = subprocess.check_output(cmd, universal_newlines=True)
+    def _get_fingerprints(self, key):
         fingerprints = []
-        for line in output.splitlines():
-            if line.startswith("fpr:"):
-                fingerprints.append(line.split(":")[9])
+        p = self.gpg_cmd("show-only --fingerprint --batch --with-colons")
+        (output, _) = p.communicate(key)
+        if p.returncode == 0:
+            for line in output.decode('utf-8').splitlines():
+                if line.startswith("fpr:"):
+                    fingerprints.append(line.split(":")[9])
         return fingerprints
 
-    def _verify_fingerprint(self, keyring, expected_fingerprint, keyring_dir):
-        got_fingerprints = self._get_fingerprints(keyring, keyring_dir)
-        if len(got_fingerprints) > 1:
+    def _verify_fingerprint(self, key, expected_fingerprint):
+        got_fingerprints = self._get_fingerprints(key)
+        if len(got_fingerprints) != 1:
             print("Got '%s' fingerprints, expected only one" %
                   len(got_fingerprints))
             return False
@@ -255,9 +241,6 @@ class AddPPASigningKey(object):
         if ppa_path is None:
             ppa_path = self.ppa_path
 
-        def cleanup(tmpdir):
-            shutil.rmtree(tmp_keyring_dir)
-
         try:
             ppa_info = get_ppa_info(ppa_path)
         except PPAException as e:
@@ -268,41 +251,26 @@ class AddPPASigningKey(object):
         except IndexError as e:
             print("Error: can't find signing_key_fingerprint at %s" % ppa_path)
             return False
-        # create temp keyrings
-        tmp_keyring_dir = tempfile.mkdtemp()
-        tmp_secret_keyring = os.path.join(tmp_keyring_dir, "secring.gpg")
-        tmp_keyring = os.path.join(tmp_keyring_dir, "pubring.gpg")
-        #  download the key into a temp keyring first
-        if not self._recv_key(
-            tmp_keyring, tmp_secret_keyring, signing_key_fingerprint, tmp_keyring_dir):
-            cleanup(tmp_keyring_dir)
+        
+        #  download the armored_key
+        armored_key = self._recv_key(signing_key_fingerprint)
+        if not armored_key:
             return False
-        # now export the key into a temp keyring using the long key id
-        tmp_export_keyring = os.path.join(tmp_keyring_dir, "export-keyring.gpg")
-        if not self._export_key(
-            tmp_keyring, tmp_export_keyring, signing_key_fingerprint, tmp_keyring_dir):
-            cleanup(tmp_keyring_dir)
-            return False
-        # now verify the fingerprint
-        if not self._verify_fingerprint(
-            tmp_export_keyring, signing_key_fingerprint, tmp_keyring_dir):
-            cleanup(tmp_keyring_dir)
-            return False
-        # now export armor key, because apt-key cannot import keybox
-        tmp_export_armor_keyring = os.path.join(tmp_keyring_dir, "export-armor-keyring.gpg")
-        if not self._export_armor_key(
-            tmp_keyring, tmp_export_armor_keyring, signing_key_fingerprint, tmp_keyring_dir):
-            cleanup(tmp_keyring_dir)
-            return False
-        # and add it
+
         trustedgpgd = apt_pkg.config.find_dir("Dir::Etc::trustedparts")
-        apt_keyring = os.path.join(trustedgpgd, "%s.gpg" % (
-            encode(ppa_info["reference"][1:])))
-        res = subprocess.call(["apt-key", "--keyring", apt_keyring, "add",
-            tmp_export_armor_keyring])
-        # cleanup
-        cleanup(tmp_keyring_dir)
-        return (res == 0)
+        apt_keyring = os.path.join(trustedgpgd, encode(ppa_info["reference"][1:]))
+
+        minimal_key = self._minimize_key(armored_key)
+        if not minimal_key:
+            return False
+        
+        if not self._verify_fingerprint(minimal_key, signing_key_fingerprint):
+            return False
+
+        with open('%s.gpg' % apt_keyring, 'wb') as f:
+            f.write(minimal_key)
+
+        return True
 
 
 class AddPPASigningKeyThread(Thread, AddPPASigningKey):

@@ -11,6 +11,12 @@ import copy
 
 class TestAptSources(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        for k in apt_pkg.config.keys():
+            apt_pkg.config.clear(k)
+        apt_pkg.init()
+		
     def setUp(self):
         self.testdir = os.path.abspath(os.path.dirname(__file__))
         apt_pkg.init()

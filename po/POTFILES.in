@@ -2,6 +2,7 @@
 data/mime/apt.xml.in
 data/com.ubuntu.softwareproperties.policy.in
 data/software-properties-gtk.desktop.in
+data/software-properties-gtk.appdata.xml.in
 data/software-properties-kde.desktop.in
 data/software-properties-drivers.desktop.in
 software-properties-gtk
@@ -17,6 +18,7 @@ softwareproperties/kde/DialogAdd.py
 softwareproperties/kde/DialogEdit.py
 softwareproperties/__init__.py
 softwareproperties/SoftwareProperties.py
+softwareproperties/gtk/DialogAuth.py
 softwareproperties/gtk/DialogMirror.py
 softwareproperties/gtk/CdromProgress.py
 softwareproperties/gtk/SoftwarePropertiesGtk.py
@@ -38,4 +40,4 @@ softwareproperties/AptAuth.py
 [type: gettext/glade]data/gtkbuilder/dialog-cache-outofdate.ui
 [type: gettext/glade]data/gtkbuilder/dialog-mirror.ui
 [type: gettext/glade]data/gtkbuilder/dialog-add.ui
-
+[type: gettext/glade]data/gtkbuilder/dialog-auth.ui
