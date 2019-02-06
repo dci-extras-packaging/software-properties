@@ -29,8 +29,9 @@ XS-Testsuite: autopkgtest
 Package: python3-software-properties
 Section: python
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3, python3-apt (>=
- 0.6.20ubuntu16), python3-gi, lsb-release, iso-codes, gpg, gpg-agent
+Depends: ${python3:Depends}, ${misc:Depends}, python3,
+ python3-apt (>= 0.6.20ubuntu16), python3-gi, lsb-release,
+ iso-codes, gpg, gpg-agent
 Recommends: unattended-upgrades
 Description: manage the repositories that you install software from
  This software provides an abstraction of the used apt repositories.
